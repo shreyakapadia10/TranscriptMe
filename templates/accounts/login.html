@@ -8,7 +8,7 @@
 
     {% if request.GET.command == 'verification' %}
     <div class="container mx-auto alert alert-info text-center" role="alert" style="max-width: 1024px; margin-top:100px;">
-        <h5>We have sent an account activation link to your email address ({{ request.GET.email }}). </h5>
+        <h5>We have sent an account activation link to your email address ({{ request.GET.email }}), click on the given link to activate your account. </h5>
         <br>
         <p>Already activated? <a href="{% url 'Login' %}">Login Now!</a></p>
     </div>

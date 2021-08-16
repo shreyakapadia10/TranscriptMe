@@ -1,0 +1,11 @@
+{% autoescape off %}
+
+Hi {{ user.first_name }},
+
+Thank you for joining TranscriptMe community. 
+
+Please activate your account using below link:
+http://{{domain}}{% url 'ActivateAccount' uidb64=uid token=token %}
+
+If you have not done this, please ignore this mail.
+{% endautoescape %}
