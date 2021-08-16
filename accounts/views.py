@@ -1,6 +1,6 @@
 from accounts.models import User
 from django.shortcuts import redirect, render
-from .forms import UserRegistrationForm
+from .forms import UserProfileUpdationForm, UserRegistrationForm
 from django.contrib import messages
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
@@ -60,3 +60,23 @@ def logout(request):
     messages.success(request, 'You are logged out now!')
     return redirect('Login')
 
+@login_required(login_url='Login')
+def update_profile(request):
+    user = request.user
+
+    if request.method == 'POST':
+        form = UserProfileUpdationForm(request.POST, request.FILES, instance=user)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('UpdateProfile')
+    else:
+        form = UserProfileUpdationForm(instance=user)
+    
+    context={
+        'user': user,
+        'form': form,
+    }
+
+    return render(request, 'accounts/update_profile.html', context)
