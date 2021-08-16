@@ -5,6 +5,14 @@ from django.contrib import messages
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 
+# Email Verification imports
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMessage
+
 # Create your views here.
 def register(request):
     if request.method == 'POST':
@@ -60,3 +68,68 @@ def logout(request):
     messages.success(request, 'You are logged out now!')
     return redirect('Login')
 
+
+def forgotPassword(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email__iexact=email)
+
+            # Reset Password Mail
+            current_site = get_current_site(request)
+            mail_subject = 'Reset Your Password'
+            message = render_to_string('accounts/password/reset_password_email.html', {
+                'user': user,
+                'domain': current_site,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            })
+
+            to_email = email
+            send_email = EmailMessage(mail_subject, message, to=[to_email])
+            send_email.send()
+
+            messages.success(request=request, message='Password Reset Link Has Been Sent Successfully! Click on the link to reset your password!')
+
+            return redirect('Login')
+        else:
+            messages.error(request=request, message='Account does not exists!')
+            return redirect('ForgotPassword')
+    
+    return render(request, 'accounts/password/forgot-password.html')
+
+
+def resetPasswordValidate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User._default_manager.get(pk=uid)
+    except (TypeError, ValueError, User.DoesNotExistError, OverflowError):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        request.session['uid'] = uid
+        messages.success(request, 'Please Reset Your Password!')
+        return redirect('ResetPassword')
+    else:
+        messages.error(request, 'This Link Has Been Expired!')
+        return redirect('Login')
+
+
+def resetPassword(request):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if password == confirm_password:
+            uid = request.session.get('uid')
+            user = User.objects.get(pk=uid)
+            user.set_password(password)
+            user.save()
+            messages.success(request, 'Your password has been changed successfully! You can Login Now!')
+            return redirect('Login')
+        else:
+            messages.error(request, "Password doesn't match!")
+            return redirect('ResetPassword')
+
+    return render(request, 'accounts/password/reset-password.html')
