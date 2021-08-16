@@ -60,3 +60,29 @@ def logout(request):
     messages.success(request, 'You are logged out now!')
     return redirect('Login')
 
+
+@login_required(login_url='Login')
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        user = User.objects.get(email__exact=request.user.email)
+
+        if new_password == confirm_password:
+            success = user.check_password(current_password)
+
+            if success:
+                user.set_password(new_password)
+                user.save()
+                messages.success(request, 'Your password has been updated!')
+                return redirect('ChangePassword')
+            else:
+                messages.error(request, 'Current password does not match!')
+                return redirect('ChangePassword')
+        else:
+            messages.error(request, 'New password and Confirm Password does not match!')
+            return redirect('ChangePassword')
+    else:
+        return render(request, 'accounts/change_password.html')
