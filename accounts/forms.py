@@ -3,6 +3,7 @@ from .models import User
 from django.forms.widgets import PasswordInput
 from django.contrib.auth.forms import UserChangeForm
 
+# User Registration Form
 class UserRegistrationForm(forms.ModelForm):
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
@@ -32,7 +33,23 @@ class UserRegistrationForm(forms.ModelForm):
         if password != confirm_password:
             raise forms.ValidationError("New Password and Confirm Password Doesn't Match")
 
+
+# User Updation Form at Admin Side
 class UserUpdationForm(UserChangeForm):
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'email', 'is_active')
+
+
+# User Profile Updation Form
+class UserProfileUpdationForm(forms.ModelForm):
+    profile_picture = forms.ImageField(required=False, widget=forms.FileInput())
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'app_id', 'secret_id', 'profile_picture']
+    
+    def __init__(self, *args, **kwargs) -> None:
+        super(UserProfileUpdationForm, self).__init__(*args, **kwargs)
+        
+        for field in self.fields:
+            self.fields[field].widget.attrs['class'] = 'form-control'
