@@ -5,11 +5,7 @@ from django.contrib import messages
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 
-<<<<<<< HEAD
 # Email Verification Imports
-=======
-# Email Verification imports
->>>>>>> forget-password
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
