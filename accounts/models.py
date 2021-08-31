@@ -7,8 +7,8 @@ from .managers import MyUserAccountManager
 class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True, help_text='Enter Email Address')
-    app_id = models.CharField(max_length=50, unique=True, help_text='Enter App ID')
-    secret_id = models.CharField(max_length=50, unique=True, help_text='Enter Secret ID')
+    app_id = models.CharField(max_length=250, unique=True, help_text='Enter App ID')
+    secret_id = models.CharField(max_length=250, unique=True, help_text='Enter Secret ID')
     profile_picture = models.ImageField(upload_to='user_profile')
 
     USERNAME_FIELD = 'email'

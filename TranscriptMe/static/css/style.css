@@ -1,0 +1,13 @@
+.image-border{
+    border-radius: 50%;
+    border: 2px solid black;
+}
+
+.image-size{
+    height: 300px;
+    width: 300px;
+}
+
+.image-center{
+    align-content: center;
+}

@@ -23,14 +23,8 @@
               <img src="{{ user.profile_picture.url }}" alt="{{ user.profile_picture.url }}" width="32" height="32" class="rounded-circle">
             </a>
             <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
-              <li><a class="dropdown-item" href="#">New project...</a></li>
-<<<<<<< HEAD
-              <li><a class="dropdown-item" href="#">Settings</a></li>
               <li><a class="dropdown-item" href="{% url 'UpdateProfile' %}">Profile</a></li>
-=======
               <li><a class="dropdown-item" href="{% url 'ChangePassword' %}">Change Password</a></li>
-              <li><a class="dropdown-item" href="#">Profile</a></li>
->>>>>>> change-password
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="{% url 'Logout' %}">Sign out</a></li>
             </ul>
