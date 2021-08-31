@@ -2,7 +2,6 @@ from transcriptions.models import Document
 from django.shortcuts import redirect, render
 import symbl
 import json
-import requests
 # Create your views here.
 
 # generating token
@@ -95,6 +94,9 @@ def generate_text_transcription(request, messages, action_items, questions, topi
 
     if messages is not None:
         print(conversation_object.get_messages())
+
+        with open('messages.txt', 'w') as f:
+            json.dump(conversation_object.get_messages(), f)
     if topics is not None:
         print(conversation_object.get_topics())
     if follow_ups is not None:
