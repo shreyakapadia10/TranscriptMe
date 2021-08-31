@@ -166,6 +166,8 @@ def resetPassword(request):
             return redirect('ResetPassword')
 
     return render(request, 'accounts/password/reset-password.html')
+
+
 @login_required(login_url='Login')
 def update_profile(request):
     user = request.user
@@ -181,7 +183,6 @@ def update_profile(request):
         form = UserProfileUpdationForm(instance=user)
     
     context={
-        'user': user,
         'form': form,
     }
 
