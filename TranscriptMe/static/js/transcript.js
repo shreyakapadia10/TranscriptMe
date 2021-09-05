@@ -24,6 +24,7 @@ $(document).ready(function () {
        $('#download_link').html('<h4 class="my-3">Transcripting your file...</h4>');
        let file_props = $('#file').prop('files');   
        let file = file_props[0];
+       let file_name = $('#file_name').val();   
        let messages = $('#messages').val();   
        let action_items = $('#action_items').val();      
        let questions = $('#questions').val();
@@ -36,6 +37,7 @@ $(document).ready(function () {
         var data = new FormData();
 
         data.append("file", file);
+        data.append("file_name", file_name);
         data.append("messages", messages);
         data.append("action_items", action_items);
         data.append("questions", questions);

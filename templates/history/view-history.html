@@ -9,6 +9,7 @@
         <thead>
             <tr>
               <th scope="col" class="text-center">#</th>
+              <th scope="col" class="text-center">Transcription Name</th>
               <th scope="col" class="text-center">Media Type</th>
               <th scope="col" class="text-center">Date</th>
               <th scope="col" class="text-center">Action</th>
@@ -19,6 +20,7 @@
             {% for history in histories %}
                 <tr>
                 <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                <td class="text-center">{{ history.name|capfirst }}</td>
                 <td class="text-center">{{ history.media_type|capfirst }}</td>
                 <td class="text-center">{{ history.uploaded_at }}</td>
                 <td class="text-center"><a href="{% url 'DownloadFiles' history.job_id history.conversation_id %}" type="button" class="btn btn-primary">Append Another File</a></td>

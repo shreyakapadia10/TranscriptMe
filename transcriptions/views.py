@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 def transcript_text(request):
     if request.user.is_authenticated:
         if request.is_ajax():
+            file_name = request.POST.get('file_name', None)
             messages = request.POST.get('messages', None)
             action_items = request.POST.get('action_items', None)
             questions = request.POST.get('questions', None)
@@ -22,7 +23,7 @@ def transcript_text(request):
             members = request.POST.get('members', None)
 
             file = request.FILES.get('file')
-            doc = Document.objects.create(file=file, name=file.name, user=request.user, media_type='text')
+            doc = Document.objects.create(file=file, name=file_name, user=request.user, media_type='text')
             path = doc.file.path
 
             with open(path, 'r') as f:
@@ -73,6 +74,7 @@ def generate_text_transcription(request, messages, action_items, questions, topi
 def transcript_audio(request):
     if request.user.is_authenticated:
         if request.is_ajax():
+            file_name = request.POST.get('file_name', None)
             messages = request.POST.get('messages', None)
             action_items = request.POST.get('action_items', None)
             questions = request.POST.get('questions', None)
@@ -81,7 +83,7 @@ def transcript_audio(request):
             members = request.POST.get('members', None)
 
             file = request.FILES.get('file')
-            doc = Document.objects.create(file=file, name=file.name, user=request.user, media_type='audio')
+            doc = Document.objects.create(file=file, name=file_name, user=request.user, media_type='audio')
             path = doc.file.path
         
             job_id, conversation_id = generate_audio_transcription(request, messages, action_items, questions, topics, follow_ups, members, path, doc)
