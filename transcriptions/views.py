@@ -9,6 +9,7 @@ from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import HttpResponse
 import datetime as dt
+from django.contrib.auth.decorators import login_required
 
 def transcript_text(request):
     if request.user.is_authenticated:
@@ -254,3 +255,13 @@ def download_files(request, job_id, conversation_id):
     resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
 
     return resp
+
+# History
+
+@login_required(login_url='Login')
+def view_history(request):
+    histories = Document.objects.filter(user=request.user).order_by('-uploaded_at')
+    context = {
+        'histories': histories,
+    }
+    return render(request, 'history/view-history.html', context)
