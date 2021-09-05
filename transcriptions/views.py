@@ -154,7 +154,7 @@ def save_response(request, conversation_object, messages, topics, follow_ups, ac
         
         #To get the topics from the conversation
         api_response = conversation_object.get_topics()
-        file = os.path.join(file_path,'/topics' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
+        file = os.path.join(file_path,'topics' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
         process_response(api_response.topics, file)
 
         filenames.append(file)
@@ -164,7 +164,7 @@ def save_response(request, conversation_object, messages, topics, follow_ups, ac
        
         #To get the topics from the conversation
         api_response = conversation_object.get_follow_ups()
-        file = os.path.join(file_path, '/follow_ups' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
+        file = os.path.join(file_path, 'follow_ups' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
         process_response(api_response.follow_ups, file)
 
         filenames.append(file)
@@ -175,7 +175,7 @@ def save_response(request, conversation_object, messages, topics, follow_ups, ac
 
         #To get the topics from the conversation
         api_response = conversation_object.get_action_items()
-        file = os.path.join(file_path, '/action_items' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
+        file = os.path.join(file_path, 'action_items' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
         process_response(api_response.action_items, file)
 
         filenames.append(file)
@@ -186,7 +186,7 @@ def save_response(request, conversation_object, messages, topics, follow_ups, ac
         
         #To get the topics from the conversation
         api_response = conversation_object.get_questions()
-        file = os.path.join(file_path,'/questions' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
+        file = os.path.join(file_path,'questions' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
         process_response(api_response.questions, file)
 
         filenames.append(file)
@@ -202,7 +202,7 @@ def save_response(request, conversation_object, messages, topics, follow_ups, ac
         text_response = extract_text(api_response.members)
 
         text_response = listToString(text_response)
-        fname = os.path.join(file_path, '/members' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
+        fname = os.path.join(file_path, 'members' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
         file = open(fname, "w+")
         file.write(str(text_response))
         file.close()
