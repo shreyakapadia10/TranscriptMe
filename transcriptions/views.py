@@ -21,7 +21,7 @@ def transcript_text(request):
             topics = request.POST.get('topics', None)
             follow_ups = request.POST.get('follow_ups', None)
             members = request.POST.get('members', None)
-            print(messages)
+            
             file = request.FILES.get('file')
             doc = Document.objects.create(file=file, name=file_name, user=request.user, media_type='text')
             path = doc.file.path
@@ -81,12 +81,7 @@ def transcript_audio(request):
             topics = request.POST.get('topics', None)
             follow_ups = request.POST.get('follow_ups', None)
             members = request.POST.get('members', None)
-            if messages == 'messages': messages = None
-            if action_items == 'action_items': action_items = None
-            if questions == 'questions': questions = None
-            if topics == 'topics': topics = None
-            if follow_ups == 'follow_ups': follow_ups = None
-            if members == 'members': members = None
+           
             file = request.FILES.get('file')
             doc = Document.objects.create(file=file, name=file_name, user=request.user, media_type='audio')
             path = doc.file.path
