@@ -84,6 +84,7 @@ $(document).ready(function () {
 
        let file_props = $('#file').prop('files');   
        let file = file_props[0];
+       let file_name = $('#file_name').val();   
        const insights = document.querySelectorAll(`input[name="insights"]:checked`);
        let values = [];
 
