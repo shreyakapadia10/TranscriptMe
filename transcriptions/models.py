@@ -17,3 +17,6 @@ class Document(models.Model):
     job_id = models.TextField(blank=True)
     conversation_id = models.TextField(blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f'{self.name} by {self.user.first_name}'
