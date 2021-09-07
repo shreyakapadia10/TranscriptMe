@@ -17,31 +17,78 @@ function getCookie(name) {
 }
 
 $(document).ready(function () {
+    let my_response_data = []
+    // File Upload button
+    $('#file_upload_btn').on('click', function (e) {
+        e.preventDefault(); 
+        let file_props = $('#file').prop('files');   
+        let file = file_props[0];
+        let file_name = $('#file_name').val();   
+        let data = new FormData();
+
+        data.append("file", file);
+        data.append("file_name", file_name);
+        data.append("request", "file_upload");
+        data.append("csrfmiddlewaretoken", csrftoken);
+
+        $('#file_upload_btn').prop('value', 'Uploading File...');
+        // sending form data
+        $.ajax({
+            type: "POST",
+            url: URL,
+            processData: false,
+            contentType: false,
+            mimeType: "multipart/form-data",
+            dataType: "json",
+            data: data,
+
+            success: function (data) {
+                // alert(data.message);
+                // console.log('success');
+                // console.log(data);
+                
+                if(data){
+                    $('#file_upload_btn').prop('value', 'Uploaded');
+                    $('#file_upload_btn').removeClass('btn btn-outline-secondary');
+                    $('#file_upload_btn').addClass('btn btn-success');
+                    $('#insights_div').css('display', 'block');
+                    $('#transcription_btn_div').css('display', 'block');
+                    my_response_data.push(data.job_id);
+                    my_response_data.push(data.conversation_id);
+                }
+            },
+            
+            failure: function (data) {
+                // alert(data.message);
+                console.log('fail');
+            }
+        });
+
+    });
+
+
     // Text form 
     
     $('#text_submit_btn').on('click', function (e) {
-       e.preventDefault(); 
+        e.preventDefault(); 
+        const insights = document.querySelectorAll(`input[name="insights"]:checked`);
+        let values = [];
+
+        var data = new FormData();
+
+        insights.forEach((checkbox) => {
+            values.push(checkbox.value);
+            data.append(checkbox.value, checkbox.value)
+        });
        
-       let file_props = $('#file').prop('files');   
-       let file = file_props[0];
-       let file_name = $('#file_name').val();   
-      
-       const insights = document.querySelectorAll(`input[name="insights"]:checked`);
-       let values = [];
-
-       var data = new FormData();
-
-       insights.forEach((checkbox) => {
-           values.push(checkbox.value);
-           data.append(checkbox.value, checkbox.value)
-       });
-        data.append("file", file);
-        data.append("file_name", file_name);
+        data.append("job_id", my_response_data[0]);
+        data.append("conversation_id", my_response_data[1]);
+        data.append("request", "file_download");
         data.append("csrfmiddlewaretoken", csrftoken);
 
         if(values.length > 0)
         {
-            $('#download_link').html('<h4 class="my-3">Transcripting your file...</h4>');
+            $('#download_link').html('<img src="/static/images/misc/loading.gif" class="my-3">');
             // sending form data
             $.ajax({
                 type: "POST",
@@ -54,7 +101,7 @@ $(document).ready(function () {
 
                 success: function (data) {
                     // alert(data.message);
-                    console.log('success');
+                    // console.log('success');
                     // console.log(data);
 
                     if(data){
@@ -80,27 +127,24 @@ $(document).ready(function () {
 
     // Audio form 
     $('#audio_submit_btn').on('click', function (e) {
-       e.preventDefault(); 
+        e.preventDefault();   
+        const insights = document.querySelectorAll(`input[name="insights"]:checked`);
+        let values = [];
 
-       let file_props = $('#file').prop('files');   
-       let file = file_props[0];
-       let file_name = $('#file_name').val();   
-       const insights = document.querySelectorAll(`input[name="insights"]:checked`);
-       let values = [];
+        var data = new FormData();
 
-       var data = new FormData();
-
-       insights.forEach((checkbox) => {
-           values.push(checkbox.value);
-           data.append(checkbox.value, checkbox.value)
-       });
-        data.append("file", file);
-        data.append("file_name", file_name);
+        insights.forEach((checkbox) => {
+            values.push(checkbox.value);
+            data.append(checkbox.value, checkbox.value)
+        });
+        data.append("job_id", my_response_data[0]);
+        data.append("conversation_id", my_response_data[1]);
+        data.append("request", "file_download");
         data.append("csrfmiddlewaretoken", csrftoken);
 
         if(values.length > 0)
         {
-            $('#download_link').html('<h4 class="my-3">Transcripting your file...</h4>');
+            $('#download_link').html('<img src="/static/images/misc/loading.gif" class="my-3">');
             // sending form data
             $.ajax({
                 type: "POST",
@@ -113,7 +157,7 @@ $(document).ready(function () {
 
                 success: function (data) {
                     // alert(data.message);
-                    console.log('success');
+                    // console.log('success');
                     // console.log(data);
 
                     if(data){

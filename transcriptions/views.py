@@ -14,35 +14,50 @@ from django.contrib.auth.decorators import login_required
 def transcript_text(request):
     if request.user.is_authenticated:
         if request.is_ajax():
-            file_name = request.POST.get('file_name', None)
-            messages = request.POST.get('messages', None)
-            action_items = request.POST.get('action_items', None)
-            questions = request.POST.get('questions', None)
-            topics = request.POST.get('topics', None)
-            follow_ups = request.POST.get('follow_ups', None)
-            members = request.POST.get('members', None)
+            request_for = request.POST.get('request')
+            if request_for == "file_upload":
             
-            file = request.FILES.get('file')
-            doc = Document.objects.create(file=file, name=file_name, user=request.user, media_type='text')
-            path = doc.file.path
+                file_name = request.POST.get('file_name', None)
+                
+                file = request.FILES.get('file')
+                doc = Document.objects.create(file=file, name=file_name, user=request.user, media_type='text')
+                path = doc.file.path
 
-            with open(path, 'r') as f:
-                contents = f.read()
+                with open(path, 'r') as f:
+                    contents = f.read()
 
-            job_id, conversation_id = generate_text_transcription(request, messages, action_items, questions, topics, follow_ups, members, contents, doc)
+                job_id, conversation_id = generate_text_transcription(request, contents, doc)
 
-            response = {
-                'job_id': job_id,
-                'conversation_id': conversation_id,
-            }
+                response = {
+                    'job_id': job_id,
+                    'conversation_id': conversation_id,
+                }
 
-            return JsonResponse(response)
+                return JsonResponse(response)
+            else:
+                messages = request.POST.get('messages', None)
+                action_items = request.POST.get('action_items', None)
+                questions = request.POST.get('questions', None)
+                topics = request.POST.get('topics', None)
+                follow_ups = request.POST.get('follow_ups', None)
+                members = request.POST.get('members', None)
+                conversation_id = request.POST.get('conversation_id')
+                job_id = request.POST.get('job_id')
+                doc = Document.objects.get(job_id=job_id, conversation_id=conversation_id)
+                
+                job_id, conversation_id = save_response(request, conversation_id, job_id, messages, topics, follow_ups, action_items, questions, members, doc)
+
+                response = {
+                    'job_id': job_id,
+                    'conversation_id': conversation_id,
+                }
+
+                return JsonResponse(response)
 
         return render(request, 'transcriptions/transcript-text.html')
     return redirect('Login')
 
-
-def generate_text_transcription(request, messages, action_items, questions, topics, follow_ups, members, contents, doc):
+def generate_text_transcription(request, contents, doc):
     app_id = request.user.app_id
     secret_id = request.user.secret_id
 
@@ -64,9 +79,15 @@ def generate_text_transcription(request, messages, action_items, questions, topi
     }
 
     conversation_object = symbl.Text.process(payload=payload, credentials={
-        'app_id': app_id, 'app_secret': secret_id})
-
-    job_id, conversation_id = save_response(request, conversation_object, messages, topics, follow_ups, action_items, questions, members, doc)
+        'app_id': app_id, 'app_secret': secret_id}, wait=False)
+    job_id = conversation_object.get_job_id()
+    conversation_id = conversation_object.get_conversation_id()
+    
+    # Saving job_id and conversation_id
+    doc.job_id = job_id
+    doc.conversation_id = conversation_id
+    
+    doc.save()
 
     return job_id, conversation_id
 
@@ -133,39 +154,34 @@ def process_response(response, file_name):
 
 
 # to save response to file
-def save_response(request, conversation_object, messages, topics, follow_ups, action_items, questions, members, doc):
+def save_response(request, conversation_id, job_id, messages, topics, follow_ups, action_items, questions, members, doc):
 
     filenames = []
     media_path = settings.MEDIA_ROOT
     file_path = os.path.join(media_path, 'temp')
-    job_id = conversation_object.get_job_id()
-    conversation_id = conversation_object.get_conversation_id()
 
-    if messages is not None:
-        # print(conversation_object.get_messages())
-        
+    if messages is not None:      
         #To get the message from the conversation
-        api_response = conversation_object.get_messages()
+
+        api_response = symbl.Conversations.get_messages(conversation_id=conversation_id)
         file = os.path.join(file_path, 'messages' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
         process_response(api_response.messages, file)
 
         filenames.append(file)
 
     if topics is not None:
-        # print(conversation_object.get_topics())
-        
         #To get the topics from the conversation
-        api_response = conversation_object.get_topics()
+
+        api_response = symbl.Conversations.get_topics(conversation_id=conversation_id)
         file = os.path.join(file_path,'topics' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
         process_response(api_response.topics, file)
 
         filenames.append(file)
 
     if follow_ups is not None:
-        # print(conversation_object.get_follow_ups())
-       
         #To get the topics from the conversation
-        api_response = conversation_object.get_follow_ups()
+        
+        api_response = symbl.Conversations.get_follow_ups(conversation_id=conversation_id)
         file = os.path.join(file_path, 'follow_ups' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
         process_response(api_response.follow_ups, file)
 
@@ -173,10 +189,9 @@ def save_response(request, conversation_object, messages, topics, follow_ups, ac
 
 
     if action_items is not None:
-        # print(conversation_object.get_action_items())
-
         #To get the topics from the conversation
-        api_response = conversation_object.get_action_items()
+        
+        api_response = symbl.Conversations.get_action_items(conversation_id=conversation_id)
         file = os.path.join(file_path, 'action_items' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
         process_response(api_response.action_items, file)
 
@@ -184,10 +199,9 @@ def save_response(request, conversation_object, messages, topics, follow_ups, ac
 
 
     if questions is not None:
-        # print(conversation_object.get_questions())
-        
         #To get the topics from the conversation
-        api_response = conversation_object.get_questions()
+        
+        api_response = symbl.Conversations.get_questions(conversation_id=conversation_id)
         file = os.path.join(file_path,'questions' + dt.datetime.now().strftime('%Y%m%d%H%M') + '.txt')
         process_response(api_response.questions, file)
 
@@ -195,10 +209,9 @@ def save_response(request, conversation_object, messages, topics, follow_ups, ac
 
 
     if members is not None:
-        # print(conversation_object.get_members())
-         
         #To get the topics from the conversation
-        api_response = conversation_object.get_members()
+        
+        api_response = symbl.Conversations.get_members(conversation_id=conversation_id)
         extract_text = lambda responses : [response.name+" - "+response.email+'\n' for response in responses]
     
         text_response = extract_text(api_response.members)
@@ -236,8 +249,7 @@ def save_response(request, conversation_object, messages, topics, follow_ups, ac
     inMemoryZipFile = InMemoryUploadedFile(b, None, zip_filename, 'application/zip', b.__sizeof__(), None)
 
     # saving document
-    doc.job_id = job_id
-    doc.conversation_id = conversation_id
+    
     doc.zip_file = inMemoryZipFile
     doc.save()
     for file in filenames:
