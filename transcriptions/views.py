@@ -1,4 +1,5 @@
 from django.http.response import JsonResponse
+from symbl.Conversations import Conversation
 from transcriptions.models import Document
 from django.shortcuts import redirect, render
 import symbl
@@ -62,6 +63,7 @@ def generate_text_transcription(request, contents, doc):
     secret_id = request.user.secret_id
 
     payload = {
+        "name": doc.name,
         "confidenceThreshold": 0.6,
         "detectPhrases": True,
         "messages": [
@@ -95,36 +97,64 @@ def generate_text_transcription(request, contents, doc):
 def transcript_audio(request):
     if request.user.is_authenticated:
         if request.is_ajax():
-            file_name = request.POST.get('file_name', None)
-            messages = request.POST.get('messages', None)
-            action_items = request.POST.get('action_items', None)
-            questions = request.POST.get('questions', None)
-            topics = request.POST.get('topics', None)
-            follow_ups = request.POST.get('follow_ups', None)
-            members = request.POST.get('members', None)
-           
-            file = request.FILES.get('file')
-            doc = Document.objects.create(file=file, name=file_name, user=request.user, media_type='audio')
-            path = doc.file.path
-        
-            job_id, conversation_id = generate_audio_transcription(request, messages, action_items, questions, topics, follow_ups, members, path, doc)
-            response = {
-                'job_id': job_id,
-                'conversation_id': conversation_id,
-            }
-            return JsonResponse(response)
+            request_for = request.POST.get('request')
+            if request_for == "file_upload":
+            
+                file_name = request.POST.get('file_name', None)
+                
+                file = request.FILES.get('file')
+                doc = Document.objects.create(file=file, name=file_name, user=request.user, media_type='audio')
+                path = doc.file.path
+
+                job_id, conversation_id = generate_audio_transcription(request, path, doc)
+
+                response = {
+                    'job_id': job_id,
+                    'conversation_id': conversation_id,
+                }
+
+                return JsonResponse(response)
+            else:
+                messages = request.POST.get('messages', None)
+                action_items = request.POST.get('action_items', None)
+                questions = request.POST.get('questions', None)
+                topics = request.POST.get('topics', None)
+                follow_ups = request.POST.get('follow_ups', None)
+                members = request.POST.get('members', None)
+                conversation_id = request.POST.get('conversation_id')
+                job_id = request.POST.get('job_id')
+                doc = Document.objects.get(job_id=job_id, conversation_id=conversation_id)
+                
+                job_id, conversation_id = save_response(request, conversation_id, job_id, messages, topics, follow_ups, action_items, questions, members, doc)
+
+                response = {
+                    'job_id': job_id,
+                    'conversation_id': conversation_id,
+                }
+
+                return JsonResponse(response)
         return render(request, 'transcriptions/transcript-audio.html')
     return redirect('Login')
 
 
-def generate_audio_transcription(request, messages, action_items, questions, topics, follow_ups, members, path, doc):
+def generate_audio_transcription(request, path, doc):
     app_id = request.user.app_id
     secret_id = request.user.secret_id
     
-    conversation_object = symbl.Audio.process_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id})
-
-    job_id, conversation_id = save_response(request, conversation_object, messages, topics, follow_ups, action_items, questions, members, doc)
+    conversation_object = symbl.Audio.process_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
+    'name':doc.name, 
+    'detectPhrases': True, 
+    'enableSpeakerDiarization': True, 
+    'diarizationSpeakerCount': 3, })
     
+    job_id = conversation_object.get_job_id()
+    conversation_id = conversation_object.get_conversation_id()
+    
+    # Saving job_id and conversation_id
+    doc.job_id = job_id
+    doc.conversation_id = conversation_id
+    
+    doc.save()
     return job_id, conversation_id
 
 # listToString function
@@ -159,6 +189,13 @@ def save_response(request, conversation_id, job_id, messages, topics, follow_ups
     filenames = []
     media_path = settings.MEDIA_ROOT
     file_path = os.path.join(media_path, 'temp')
+    app_id = request.user.app_id
+    secret_id = request.user.secret_id
+
+    conversation_obj = Conversation(conversation_id=conversation_id, job_id=job_id, credentials={'app_id':app_id, 'app_secret':secret_id})
+    
+    while conversation_obj.get_job_status() != "completed":
+        pass
 
     if messages is not None:      
         #To get the message from the conversation
