@@ -11,6 +11,9 @@ urlpatterns = [
     path('audio/url/', views.transcript_audio_url, name='TranscriptAudioURL'),
     path('audio/url/append/<past_conversation_id>/', views.transcript_audio_url, name='TranscriptAudioURLAppend'),
 
+    path('video/', views.transcript_video, name='TranscriptVideo'),
+    path('video/append/<past_conversation_id>/', views.transcript_video, name='TranscriptVideoAppend'),
+
     path('video/url/', views.transcript_video_url, name='TranscriptVideoURL'),
     path('video/url/append/<past_conversation_id>/', views.transcript_video_url, name='TranscriptVideoURLAppend'),
 
@@ -18,4 +21,5 @@ urlpatterns = [
     path('download_files/<job_id>/<conversation_id>/', views.download_files, name='DownloadFiles'),
     
     path('history/', views.view_history, name='ViewHistory'),
+    path('history/<media_type>/', views.view_history, name='ViewHistoryByMedia'),
 ]

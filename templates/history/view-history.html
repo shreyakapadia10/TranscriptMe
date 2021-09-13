@@ -29,6 +29,8 @@
                       <a href="{% url 'TranscriptTextAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append Another Text File</a></td>
                     {% elif history.media_type == "audio" %}
                       <a href="{% url 'TranscriptAudioAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append Another Audio File</a></td>
+                    {% elif history.media_type == "video" %}
+                      <a href="{% url 'TranscriptVideoAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append Another Video File</a></td>
                     {% elif history.media_type == "audio url" %}
                       <a href="{% url 'TranscriptAudioURLAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append Another Audio URL</a></td>
                     {% elif history.media_type == "video url" %}

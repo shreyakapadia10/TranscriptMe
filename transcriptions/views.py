@@ -102,6 +102,49 @@ def generate_text_transcription(request, contents, doc, past_conversation_id=Non
 
     return job_id, conversation_id
 
+
+
+def generate_audio_video_transcription(request, path, doc, media_type, past_conversation_id=None, transcript_type=None):
+    app_id = request.user.app_id
+    secret_id = request.user.secret_id
+    
+    # Audio
+    if media_type == 'audio':
+        # New
+        if transcript_type is None:
+            conversation_object = symbl.Audio.process_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
+            'name':doc.name, 
+            'detectPhrases': True, 
+            'enableSpeakerDiarization': True })
+        # Append
+        else: 
+            conversation_object = symbl.Audio.append_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
+            'name':doc.name, 
+            'detectPhrases': True, 
+            'enableSpeakerDiarization': True }, conversation_id=past_conversation_id)
+    # Video
+    else:
+        # New
+        if transcript_type is None:
+            conversation_object = symbl.Video.process_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
+            'name':doc.name, 
+            'detectPhrases': True, })
+        # Append
+        else: 
+            conversation_object = symbl.Video.append_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
+            'name':doc.name, 
+            'detectPhrases': True,  }, conversation_id=past_conversation_id)
+        
+    job_id = conversation_object.get_job_id()
+    conversation_id = conversation_object.get_conversation_id()
+    
+    # Saving job_id and conversation_id
+    doc.job_id = job_id
+    doc.conversation_id = conversation_id
+    
+    doc.save()
+    return job_id, conversation_id
+
 # For Audio
 def transcript_audio(request, past_conversation_id=None):
     if request.user.is_authenticated:
@@ -117,11 +160,11 @@ def transcript_audio(request, past_conversation_id=None):
 
                 # New
                 if past_conversation_id is None:
-                    job_id, conversation_id = generate_audio_transcription(request, path, doc)
+                    job_id, conversation_id = generate_audio_video_transcription(request, path, doc, 'audio')
                 
                 # Append
                 else:
-                    job_id, conversation_id = generate_audio_transcription(request, path, doc, past_conversation_id, 'append')
+                    job_id, conversation_id = generate_audio_video_transcription(request, path, doc, 'audio', past_conversation_id, 'append')
 
                 response = {
                     'job_id': job_id,
@@ -152,33 +195,56 @@ def transcript_audio(request, past_conversation_id=None):
     return redirect('Login')
 
 
-def generate_audio_transcription(request, path, doc, past_conversation_id=None, transcript_type=None):
-    app_id = request.user.app_id
-    secret_id = request.user.secret_id
-    
-    # New
-    if transcript_type is None:
-        conversation_object = symbl.Audio.process_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
-        'name':doc.name, 
-        'detectPhrases': True, 
-        'enableSpeakerDiarization': True })
-    # Append
-    else: 
-        conversation_object = symbl.Audio.append_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
-        'name':doc.name, 
-        'detectPhrases': True, 
-        'enableSpeakerDiarization': True, 
-        'diarizationSpeakerCount': 3, }, conversation_id=past_conversation_id)
+# For Video
+def transcript_video(request, past_conversation_id=None):
+    if request.user.is_authenticated:
+        if request.is_ajax():
+            request_for = request.POST.get('request')
+            if request_for == "file_upload":
+            
+                file_name = request.POST.get('file_name', None)
+                
+                file = request.FILES.get('file')
+                doc = Document.objects.create(file=file, name=file_name, user=request.user, media_type='video')
+                path = doc.file.path
 
-    job_id = conversation_object.get_job_id()
-    conversation_id = conversation_object.get_conversation_id()
-    
-    # Saving job_id and conversation_id
-    doc.job_id = job_id
-    doc.conversation_id = conversation_id
-    
-    doc.save()
-    return job_id, conversation_id
+                # New
+                if past_conversation_id is None:
+                    job_id, conversation_id = generate_audio_video_transcription(request, path, doc, 'video')
+                
+                # Append
+                else:
+                    job_id, conversation_id = generate_audio_video_transcription(request, path, doc, 'video', past_conversation_id, 'append')
+
+                response = {
+                    'job_id': job_id,
+                    'conversation_id': conversation_id,
+                }
+
+                return JsonResponse(response)
+            else:
+                messages = request.POST.get('messages', None)
+                action_items = request.POST.get('action_items', None)
+                questions = request.POST.get('questions', None)
+                topics = request.POST.get('topics', None)
+                follow_ups = request.POST.get('follow_ups', None)
+                members = request.POST.get('members', None)
+                conversation_id = request.POST.get('conversation_id')
+                job_id = request.POST.get('job_id')
+                doc = Document.objects.get(job_id=job_id, conversation_id=conversation_id)
+                
+                job_id, conversation_id = save_response(request, conversation_id, job_id, messages, topics, follow_ups, action_items, questions, members, doc)
+
+                response = {
+                    'job_id': job_id,
+                    'conversation_id': conversation_id,
+                }
+
+                return JsonResponse(response)
+        return render(request, 'transcriptions/transcript-video.html')
+    return redirect('Login')
+
+
 
 # listToString function
 def listToString(s): 
@@ -333,8 +399,11 @@ def download_files(request, job_id, conversation_id):
 # History
 
 @login_required(login_url='Login')
-def view_history(request):
-    histories = Document.objects.filter(user=request.user).order_by('-uploaded_at')
+def view_history(request, media_type=None):
+    if media_type is None:
+        histories = Document.objects.filter(user=request.user).order_by('-uploaded_at')
+    else: 
+        histories = Document.objects.filter(user=request.user, media_type=media_type).order_by('-uploaded_at')
     context = {
         'histories': histories,
     }

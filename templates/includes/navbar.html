@@ -8,11 +8,52 @@
         </a> -->
 
         <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-          <li><a href="{% url 'Home' %}" class="nav-link px-2 link-secondary">Home</a></li>
-          <li><a href="{% url 'TranscriptText' %}" class="nav-link px-2 link-dark">Transcript Text</a></li>
-          <li><a href="{% url 'TranscriptAudio' %}" class="nav-link px-2 link-dark">Transcript Audio</a></li>
-          <li><a href="#" class="nav-link px-2 link-dark">Transcript Video</a></li>
-          <li><a href="{% url 'ViewHistory' %}" class="nav-link px-2 link-dark">My Transcript History</a></li>
+          <li><a href="{% url 'Home' %}" class="nav-link px-2 link-primary">Home</a></li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink1" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Transcript Text
+            </a>
+            <ul class="dropdown-menu dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink1">
+              <li><a class="dropdown-item" href="{% url 'TranscriptText' %}">Transcript using File</a></li>
+              <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'text' %}">Append Another File</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Transcript Audio
+            </a>
+            <ul class="dropdown-menu dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink2">
+              <li><a class="dropdown-item" href="{% url 'TranscriptAudio' %}">Transcript using File</a></li>
+              <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'audio' %}">Append Another File</a></li>
+              <li><a class="dropdown-item" href="{% url 'TranscriptAudioURL' %}">Transcript using URL</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Transcript Video
+            </a>
+            <ul class="dropdown-menu dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink3">
+              <li><a class="dropdown-item" href="{% url 'TranscriptVideo' %}">Transcript using File</a></li>
+              <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'video' %}">Append Another File</a></li>
+              <li><a class="dropdown-item" href="{% url 'TranscriptVideoURL' %}">Transcript using URL</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink4" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              History
+            </a>
+            <ul class="dropdown-menu dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink4">
+              <li><a class="dropdown-item" href="{% url 'ViewHistory' %}">View All History</a></li>
+              <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'text' %}">Text File</a></li>
+              <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'audio' %}">Audio File</a></li>
+              <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'audio url' %}">Audio URL</a></li>
+              <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'video url' %}">Video URL</a></li>
+            </ul>
+          </li>
         </ul>
 
         <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">

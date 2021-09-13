@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-5">
+    <form method="post" enctype="multipart/form-data" id="video_form">
+        {% csrf_token %}
+        <h4 class="my-3">Step 1: Select your video file</h4>
+        <div class="input-group">
+            <span class="input-group-text" id="basic-addon1">Transcription Name</span>
+            <input type="text" class="form-control" placeholder="Transcription Name" aria-label="Transcription Name"
+                aria-describedby="basic-addon1" id="file_name" name="file_name" required>
+        </div>
+        <div class="input-group my-3">
+            <input type="file" class="form-control form-control-lg" id="file" name="file" aria-describedby="file"
+                aria-label="Upload" required>
+            <input class="btn btn-outline-secondary" type="submit" id="file_upload_btn" value="Upload File">
+        </div>
+
+        <div id="insights_div" style="display: none;">
+            <h4 class="mt-4">Step 2: Select insights</h4>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="messages" name="insights" id="insights">
+                <label class="form-check-label" for="messages">
+                    Speech-to-Text (messages)
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="action_items" id="insights" name="insights">
+                <label class="form-check-label" for="action_items">
+                    Action Items
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="questions" id="insights" name="insights">
+                <label class="form-check-label" for="questions">
+                    Questions
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="topics" id="insights" name="insights">
+                <label class="form-check-label" for="topics">
+                    Topics
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="follow_ups" id="insights" name="insights">
+                <label class="form-check-label" for="follow_ups">
+                    Follow-ups
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="members" id="insights" name="insights">
+                <label class="form-check-label" for="members">
+                    Members (a list of participants in a conversation)
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group mt-3" style="display: none;" id="transcription_btn_div">
+            <h4 class="my-3">Step 3: Submit and it's done!</h4>
+            <button type="submit" id="video_submit_btn" class="btn btn-primary">Get Transcription</button>
+        </div>
+
+        <div class="form-group mt-3" id="download_link">
+        </div>
+</div>
+
+</form>
+</div>
+
+{% endblock content %}
+
+{% block js %}
+
+<script>
+    let URL = "{% url 'TranscriptVideo' %}"
+    let download_url = "{% url 'DownloadFiles' 0 1%}"
+</script>
+
+{% endblock js %}
