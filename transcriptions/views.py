@@ -340,8 +340,140 @@ def view_history(request):
     }
     return render(request, 'history/view-history.html', context)
 
+# Processing URL
+def process_audio_video_url(request, url, file_name, media_type, transcript_type=None, past_conversation_id=None):
+    app_id = request.user.app_id
+    secret_id = request.user.secret_id
 
-# def transcript_text_append(request, job_id, conversation_id):
-#     if request.user.is_authenticated:
-#         if request.is_ajax():
-#             pass
+    payload = {
+        'url': url,
+        'name': file_name,
+        'detectPhrases': True, 
+        'confidenceThreshold': 0.6,
+        'detectEntities': True,
+    }
+
+    if media_type == 'audio url':
+        # New
+        if transcript_type is None:
+            conversation_object = symbl.Audio.process_url(payload=payload, wait=False, 
+            credentials={'app_id': app_id, 'app_secret': secret_id})
+
+        # Append
+        else:
+            conversation_object = symbl.Audio.append_url(payload=payload, wait=False, 
+            credentials={'app_id': app_id, 'app_secret': secret_id}, conversation_id=past_conversation_id)
+    else:
+        # New
+        if transcript_type is None:
+            conversation_object = symbl.Video.process_url(payload=payload, wait=False, 
+            credentials={'app_id': app_id, 'app_secret': secret_id})
+
+        # Append
+        else:
+            conversation_object = symbl.Video.append_url(payload=payload, wait=False, 
+            credentials={'app_id': app_id, 'app_secret': secret_id}, conversation_id=past_conversation_id)
+
+    conversation_id = conversation_object.get_conversation_id()                  
+    job_id = conversation_object.get_job_id()                  
+
+    doc = Document.objects.create(name=file_name, user=request.user, media_type=media_type, job_id=job_id, conversation_id=conversation_id)
+
+    doc.save()
+
+    return job_id, conversation_id
+
+# For Audio URL
+def transcript_audio_url(request, past_conversation_id=None):
+    if request.user.is_authenticated:
+        if request.is_ajax():
+            request_for = request.POST.get('request')
+            
+            if request_for == "file_upload":
+                file_name = request.POST.get('file_name', None)
+                url = request.POST.get('url', None)      
+
+                # New
+                if past_conversation_id is None:
+                    job_id, conversation_id = process_audio_video_url(request, url, file_name, 'audio url')
+
+                # Append
+                else:
+                    job_id, conversation_id = process_audio_video_url(request, url, file_name, 'audio url', 'append', past_conversation_id)
+                    
+                response = {
+                    'job_id': job_id,
+                    'conversation_id': conversation_id,
+                }
+
+                return JsonResponse(response)
+            else:
+                messages = request.POST.get('messages', None)
+                action_items = request.POST.get('action_items', None)
+                questions = request.POST.get('questions', None)
+                topics = request.POST.get('topics', None)
+                follow_ups = request.POST.get('follow_ups', None)
+                members = request.POST.get('members', None)
+                conversation_id = request.POST.get('conversation_id')
+                job_id = request.POST.get('job_id')
+                doc = Document.objects.get(job_id=job_id, conversation_id=conversation_id)
+                
+                job_id, conversation_id = save_response(request, conversation_id, job_id, messages, topics, follow_ups, action_items, questions, members, doc)
+
+                response = {
+                    'job_id': job_id,
+                    'conversation_id': conversation_id,
+                }
+
+                return JsonResponse(response)
+        return render(request, 'transcriptions/transcript-audio-url.html')
+    return redirect('Login')
+
+
+# For Video URL
+def transcript_video_url(request, past_conversation_id=None):
+    if request.user.is_authenticated:
+        if request.is_ajax():
+            request_for = request.POST.get('request')
+            app_id = request.user.app_id
+            secret_id = request.user.secret_id
+            
+            if request_for == "file_upload":
+                file_name = request.POST.get('file_name', None)
+                url = request.POST.get('url', None)      
+
+                 # New
+                if past_conversation_id is None:
+                    job_id, conversation_id = process_audio_video_url(request, url, file_name, 'video url')
+
+                # Append
+                else:
+                    job_id, conversation_id = process_audio_video_url(request, url, file_name, 'video url', 'append', past_conversation_id)
+
+                response = {
+                    'job_id': job_id,
+                    'conversation_id': conversation_id,
+                }
+
+                return JsonResponse(response)
+            else:
+                messages = request.POST.get('messages', None)
+                action_items = request.POST.get('action_items', None)
+                questions = request.POST.get('questions', None)
+                topics = request.POST.get('topics', None)
+                follow_ups = request.POST.get('follow_ups', None)
+                members = request.POST.get('members', None)
+                conversation_id = request.POST.get('conversation_id')
+                job_id = request.POST.get('job_id')
+                doc = Document.objects.get(job_id=job_id, conversation_id=conversation_id)
+                
+                job_id, conversation_id = save_response(request, conversation_id, job_id, messages, topics, follow_ups, action_items, questions, members, doc)
+
+                response = {
+                    'job_id': job_id,
+                    'conversation_id': conversation_id,
+                }
+
+                return JsonResponse(response)
+        return render(request, 'transcriptions/transcript-video-url.html')
+    return redirect('Login')

@@ -27,8 +27,12 @@
                   {% if history.job_id != ""  %}
                     {% if history.media_type == "text" %}
                       <a href="{% url 'TranscriptTextAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append Another Text File</a></td>
-                    {% else %}
+                    {% elif history.media_type == "audio" %}
                       <a href="{% url 'TranscriptAudioAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append Another Audio File</a></td>
+                    {% elif history.media_type == "audio url" %}
+                      <a href="{% url 'TranscriptAudioURLAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append Another Audio URL</a></td>
+                    {% elif history.media_type == "video url" %}
+                      <a href="{% url 'TranscriptVideoURLAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append Another Video URL</a></td>
                     {% endif %}
                   {% else %}
                     <h4>Can't append.</h4>
