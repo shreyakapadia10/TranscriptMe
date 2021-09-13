@@ -103,7 +103,7 @@ def generate_text_transcription(request, contents, doc, past_conversation_id=Non
     return job_id, conversation_id
 
 # For Audio
-def transcript_audio(request):
+def transcript_audio(request, past_conversation_id=None):
     if request.user.is_authenticated:
         if request.is_ajax():
             request_for = request.POST.get('request')
@@ -115,7 +115,13 @@ def transcript_audio(request):
                 doc = Document.objects.create(file=file, name=file_name, user=request.user, media_type='audio')
                 path = doc.file.path
 
-                job_id, conversation_id = generate_audio_transcription(request, path, doc)
+                # New
+                if past_conversation_id is None:
+                    job_id, conversation_id = generate_audio_transcription(request, path, doc)
+                
+                # Append
+                else:
+                    job_id, conversation_id = generate_audio_transcription(request, path, doc, past_conversation_id, 'append')
 
                 response = {
                     'job_id': job_id,
@@ -146,16 +152,25 @@ def transcript_audio(request):
     return redirect('Login')
 
 
-def generate_audio_transcription(request, path, doc):
+def generate_audio_transcription(request, path, doc, past_conversation_id=None, transcript_type=None):
     app_id = request.user.app_id
     secret_id = request.user.secret_id
     
-    conversation_object = symbl.Audio.process_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
-    'name':doc.name, 
-    'detectPhrases': True, 
-    'enableSpeakerDiarization': True, 
-    'diarizationSpeakerCount': 3, })
-    
+    # New
+    if transcript_type is None:
+        conversation_object = symbl.Audio.process_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
+        'name':doc.name, 
+        'detectPhrases': True, 
+        'enableSpeakerDiarization': True, 
+        'diarizationSpeakerCount': 3, })
+    # Append
+    else: 
+        conversation_object = symbl.Audio.append_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
+        'name':doc.name, 
+        'detectPhrases': True, 
+        'enableSpeakerDiarization': True, 
+        'diarizationSpeakerCount': 3, }, conversation_id=past_conversation_id)
+
     job_id = conversation_object.get_job_id()
     conversation_id = conversation_object.get_conversation_id()
     
@@ -258,7 +273,7 @@ def save_response(request, conversation_id, job_id, messages, topics, follow_ups
         #To get the topics from the conversation
         
         api_response = symbl.Conversations.get_members(conversation_id=conversation_id)
-        extract_text = lambda responses : [response.name+" - "+response.email+'\n' for response in responses]
+        extract_text = lambda responses : [response.name+'\n' for response in responses]
     
         text_response = extract_text(api_response.members)
 

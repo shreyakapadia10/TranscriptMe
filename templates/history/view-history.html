@@ -25,7 +25,11 @@
                 <td class="text-center">{{ history.uploaded_at }}</td>
                 <td class="text-center">
                   {% if history.job_id != ""  %}
-                    <a href="{% url 'TranscriptTextAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append Another File</a></td>
+                    {% if history.media_type == "text" %}
+                      <a href="{% url 'TranscriptTextAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append Another Text File</a></td>
+                    {% else %}
+                      <a href="{% url 'TranscriptAudioAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append Another Audio File</a></td>
+                    {% endif %}
                   {% else %}
                     <h4>Can't append.</h4>
                   {% endif %}
