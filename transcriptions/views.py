@@ -1,3 +1,4 @@
+from django.core import paginator
 from django.http.response import JsonResponse
 from symbl.Conversations import Conversation
 from transcriptions.models import Document
@@ -11,6 +12,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import HttpResponse
 import datetime as dt
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 def transcript_text(request, past_conversation_id=None):
     if request.user.is_authenticated:
@@ -402,10 +404,20 @@ def download_files(request, job_id, conversation_id):
 def view_history(request, media_type=None):
     if media_type is None:
         histories = Document.objects.filter(user=request.user).order_by('-uploaded_at')
+        paginator = Paginator(histories, 10)
     else: 
         histories = Document.objects.filter(user=request.user, media_type=media_type).order_by('-uploaded_at')
+        paginator = Paginator(histories, 10)
+
+    page = request.GET.get('page')
+    paged_histories = paginator.get_page(page)
+
+    history_count = histories.count()
+
     context = {
-        'histories': histories,
+        'histories': paged_histories,
+        'paginator': paginator,
+        'history_count': history_count,
     }
     return render(request, 'history/view-history.html', context)
 
