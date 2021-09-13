@@ -30,12 +30,12 @@ $(document).ready(function () {
         data.append("file_name", file_name);
         data.append("request", "file_upload");
         data.append("csrfmiddlewaretoken", csrftoken);
-
+        console.log(window.location.href);
         $('#file_upload_btn').prop('value', 'Uploading File...');
         // sending form data
         $.ajax({
             type: "POST",
-            url: URL,
+            url: window.location.pathname,
             processData: false,
             contentType: false,
             mimeType: "multipart/form-data",

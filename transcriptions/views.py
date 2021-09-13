@@ -12,7 +12,7 @@ from django.http import HttpResponse
 import datetime as dt
 from django.contrib.auth.decorators import login_required
 
-def transcript_text(request):
+def transcript_text(request, past_conversation_id=None):
     if request.user.is_authenticated:
         if request.is_ajax():
             request_for = request.POST.get('request')
@@ -27,7 +27,12 @@ def transcript_text(request):
                 with open(path, 'r') as f:
                     contents = f.read()
 
-                job_id, conversation_id = generate_text_transcription(request, contents, doc)
+                # New
+                if past_conversation_id is None:
+                    job_id, conversation_id = generate_text_transcription(request, contents, doc)
+                # Append
+                else:
+                    job_id, conversation_id = generate_text_transcription(request, contents, doc, past_conversation_id, 'append')
 
                 response = {
                     'job_id': job_id,
@@ -58,7 +63,7 @@ def transcript_text(request):
         return render(request, 'transcriptions/transcript-text.html')
     return redirect('Login')
 
-def generate_text_transcription(request, contents, doc):
+def generate_text_transcription(request, contents, doc, past_conversation_id=None, transcript_type=None):
     app_id = request.user.app_id
     secret_id = request.user.secret_id
 
@@ -79,9 +84,13 @@ def generate_text_transcription(request, contents, doc):
             }
         ]
     }
+    # New
+    if transcript_type is None:
+        conversation_object = symbl.Text.process(payload=payload, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False)
+    # Append
+    else:
+        conversation_object = symbl.Text.append(payload=payload, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, conversation_id=past_conversation_id)
 
-    conversation_object = symbl.Text.process(payload=payload, credentials={
-        'app_id': app_id, 'app_secret': secret_id}, wait=False)
     job_id = conversation_object.get_job_id()
     conversation_id = conversation_object.get_conversation_id()
     
@@ -316,3 +325,9 @@ def view_history(request):
         'histories': histories,
     }
     return render(request, 'history/view-history.html', context)
+
+
+# def transcript_text_append(request, job_id, conversation_id):
+#     if request.user.is_authenticated:
+#         if request.is_ajax():
+#             pass

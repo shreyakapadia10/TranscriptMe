@@ -23,10 +23,15 @@
                 <td class="text-center">{{ history.name|capfirst }}</td>
                 <td class="text-center">{{ history.media_type|capfirst }}</td>
                 <td class="text-center">{{ history.uploaded_at }}</td>
-                <td class="text-center"><a href="#" type="button" class="btn btn-primary">Append Another File</a></td>
                 <td class="text-center">
                   {% if history.job_id != ""  %}
-                  <a href="{% url 'DownloadFiles' history.job_id history.conversation_id %}" type="button" class="btn btn-success">Download Transcription</a>
+                    <a href="{% url 'TranscriptTextAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append Another File</a></td>
+                  {% else %}
+                    <h4>Can't append.</h4>
+                  {% endif %}
+                <td class="text-center">
+                  {% if history.job_id != ""  %}
+                    <a href="{% url 'DownloadFiles' history.job_id history.conversation_id %}" type="button" class="btn btn-success">Download Transcription</a>
                   {% else %}
                   <h4>No Download link available.</h4>
                   {% endif %}
