@@ -116,14 +116,12 @@ def generate_audio_video_transcription(request, path, doc, media_type, past_conv
         if transcript_type is None:
             conversation_object = symbl.Audio.process_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
             'name':doc.name, 
-            'detectPhrases': True, 
-            'enableSpeakerDiarization': True })
+            'detectPhrases': True })
         # Append
         else: 
             conversation_object = symbl.Audio.append_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
             'name':doc.name, 
-            'detectPhrases': True, 
-            'enableSpeakerDiarization': True }, conversation_id=past_conversation_id)
+            'detectPhrases': True }, conversation_id=past_conversation_id)
     # Video
     else:
         # New
