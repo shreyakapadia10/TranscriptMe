@@ -3,6 +3,8 @@
 {% block content %}
 
 <div class="container mt-5">
+    <div id="waiting" class="loader">
+    </div>
     <form method="post" enctype="multipart/form-data" id="text_form">
         {% csrf_token %}
         <h4 class="my-3">Step 1: Select your text file</h4>

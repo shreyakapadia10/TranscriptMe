@@ -106,34 +106,75 @@ def generate_text_transcription(request, contents, doc, past_conversation_id=Non
 
 
 
-def generate_audio_video_transcription(request, path, doc, media_type, past_conversation_id=None, transcript_type=None):
+def generate_audio_video_transcription(request, path, doc, media_type, past_conversation_id=None, transcript_type=None, speaker_list=None, speakers_email=None):
     app_id = request.user.app_id
     secret_id = request.user.secret_id
     
+    channelMetadata = []
+    diarizationSpeakerCount = 1
+    # If multiple speakers are there
+    if ',' in speaker_list and ',' in speakers_email:
+        speakers = speaker_list.split(',')
+        emails = speakers_email.split(',')
+        
+        # The count of speakers and emails must be same
+        if len(speakers) == len(emails):
+            speakers = [speaker.strip() for speaker in speakers]
+            emails = [email.strip() for email in emails]
+            
+            diarizationSpeakerCount = len(speakers)
+            speaker_count = 0
+            counter = 0
+            for speaker in speakers:
+                speaker_count += 1
+                channelMetadata.append({"channel": speaker_count, "speaker": {"name": speaker, "email": emails[counter]}})
+                counter += 1
+    
+    # If there is a single speaker
+    else:
+        speaker = speaker_list.strip()
+        email = speakers_email.strip()
+
+        channelMetadata.append({"channel": 1, "speaker": {"name": speaker, "email": email}})
+    
+    # print(channelMetadata)
+
     # Audio
     if media_type == 'audio':
         # New
         if transcript_type is None:
             conversation_object = symbl.Audio.process_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
             'name':doc.name, 
-            'detectPhrases': True })
+            'detectPhrases': True, 
+            'enableSpeakerDiarization': True,
+            'diarizationSpeakerCount': diarizationSpeakerCount, 
+            'channelMetadata': channelMetadata, })
         # Append
         else: 
             conversation_object = symbl.Audio.append_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
             'name':doc.name, 
-            'detectPhrases': True }, conversation_id=past_conversation_id)
+            'detectPhrases': True, 
+            'enableSpeakerDiarization': True,
+            'diarizationSpeakerCount': diarizationSpeakerCount, 
+            'channelMetadata': channelMetadata, }, conversation_id=past_conversation_id)
     # Video
     else:
         # New
         if transcript_type is None:
             conversation_object = symbl.Video.process_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
             'name':doc.name, 
-            'detectPhrases': True, })
+            'detectPhrases': True, 
+            'enableSpeakerDiarization': True, 
+            'diarizationSpeakerCount': diarizationSpeakerCount, 
+            'channelMetadata': channelMetadata, })
         # Append
         else: 
             conversation_object = symbl.Video.append_file(file_path=path, credentials={'app_id': app_id, 'app_secret': secret_id}, wait=False, parameters={
             'name':doc.name, 
-            'detectPhrases': True,  }, conversation_id=past_conversation_id)
+            'detectPhrases': True, 
+            'enableSpeakerDiarization': True, 
+            'diarizationSpeakerCount': diarizationSpeakerCount, 
+            'channelMetadata': channelMetadata, }, conversation_id=past_conversation_id)
         
     job_id = conversation_object.get_job_id()
     conversation_id = conversation_object.get_conversation_id()
@@ -157,14 +198,16 @@ def transcript_audio(request, past_conversation_id=None):
                 file = request.FILES.get('file')
                 doc = Document.objects.create(file=file, name=file_name, user=request.user, media_type='audio')
                 path = doc.file.path
+                speakers = request.POST.get('speakers', None)
+                speakers_email = request.POST.get('speakers_email', None)
 
                 # New
                 if past_conversation_id is None:
-                    job_id, conversation_id = generate_audio_video_transcription(request, path, doc, 'audio')
+                    job_id, conversation_id = generate_audio_video_transcription(request, path, doc, 'audio', speaker_list=speakers, speakers_email=speakers_email)
                 
                 # Append
                 else:
-                    job_id, conversation_id = generate_audio_video_transcription(request, path, doc, 'audio', past_conversation_id, 'append')
+                    job_id, conversation_id = generate_audio_video_transcription(request, path, doc, 'audio', past_conversation_id, 'append', speaker_list=speakers, speakers_email=speakers_email)
 
                 response = {
                     'job_id': job_id,
@@ -207,14 +250,16 @@ def transcript_video(request, past_conversation_id=None):
                 file = request.FILES.get('file')
                 doc = Document.objects.create(file=file, name=file_name, user=request.user, media_type='video')
                 path = doc.file.path
-
+                speakers = request.POST.get('speakers', None)
+                speakers_email = request.POST.get('speakers_email', None)
+                
                 # New
                 if past_conversation_id is None:
-                    job_id, conversation_id = generate_audio_video_transcription(request, path, doc, 'video')
+                    job_id, conversation_id = generate_audio_video_transcription(request, path, doc, 'video', speaker_list=speakers, speakers_email=speakers_email)
                 
                 # Append
                 else:
-                    job_id, conversation_id = generate_audio_video_transcription(request, path, doc, 'video', past_conversation_id, 'append')
+                    job_id, conversation_id = generate_audio_video_transcription(request, path, doc, 'video', past_conversation_id, 'append', speaker_list=speakers, speakers_email=speakers_email)
 
                 response = {
                     'job_id': job_id,
@@ -268,7 +313,10 @@ def process_response(response, file_name):
 
     text_response = listToString(text_response)
     file = open(file_name, "w+")
-    file.write(str(text_response))
+    if text_response != '':
+        file.write(str(text_response))
+    else:
+        file.write("No insights available!")
     file.close()
 
 
@@ -351,7 +399,7 @@ def save_response(request, conversation_id, job_id, messages, topics, follow_ups
 
     # Zip files code
 
-    zip_subdir = "transcriptions" + dt.datetime.now().strftime('%Y%m%d%H%M')
+    zip_subdir = doc.name + dt.datetime.now().strftime('%Y%m%d%H%M')
     zip_filename = "%s.zip" % zip_subdir
     # Open BytesIO to grab in-memory ZIP contents
     b = BytesIO()
@@ -387,7 +435,7 @@ def save_response(request, conversation_id, job_id, messages, topics, follow_ups
 # To download files
 def download_files(request, job_id, conversation_id):
     doc = Document.objects.get(job_id=job_id, conversation_id=conversation_id)
-    zip_filename = 'transcriptions.zip'
+    zip_filename = f'{doc.name}.zip'
     
     # Grab ZIP file from database, make response with correct MIME-type
     resp = HttpResponse(doc.zip_file, content_type="application/x-zip-compressed")
@@ -420,9 +468,38 @@ def view_history(request, media_type=None):
     return render(request, 'history/view-history.html', context)
 
 # Processing URL
-def process_audio_video_url(request, url, file_name, media_type, transcript_type=None, past_conversation_id=None):
+def process_audio_video_url(request, url, file_name, media_type, transcript_type=None, past_conversation_id=None, speaker_list=None, speakers_email=None):
     app_id = request.user.app_id
     secret_id = request.user.secret_id
+
+    channelMetadata = []
+    diarizationSpeakerCount = 1
+    # If multiple speakers are there
+    if ',' in speaker_list and ',' in speakers_email:
+        speakers = speaker_list.split(',')
+        emails = speakers_email.split(',')
+        
+        # The count of speakers and emails must be same
+        if len(speakers) == len(emails):
+            speakers = [speaker.strip() for speaker in speakers]
+            emails = [email.strip() for email in emails]
+            
+            diarizationSpeakerCount = len(speakers)
+            speaker_count = 0
+            counter = 0
+            for speaker in speakers:
+                speaker_count += 1
+                channelMetadata.append({"channel": speaker_count, "speaker": {"name": speaker, "email": emails[counter]}})
+                counter += 1
+    
+    # If there is a single speaker
+    else:
+        speaker = speaker_list.strip()
+        email = speakers_email.strip()
+
+        channelMetadata.append({"channel": 1, "speaker": {"name": speaker, "email": email}})
+    
+    # print(channelMetadata)
 
     payload = {
         'url': url,
@@ -430,6 +507,10 @@ def process_audio_video_url(request, url, file_name, media_type, transcript_type
         'detectPhrases': True, 
         'confidenceThreshold': 0.6,
         'detectEntities': True,
+        'enableSeparateRecognitionPerChannel': True,
+        'enableSpeakerDiarization': True,
+        'channelMetadata': channelMetadata,
+        'diarizationSpeakerCount': str(diarizationSpeakerCount),
     }
 
     if media_type == 'audio url':
@@ -471,14 +552,17 @@ def transcript_audio_url(request, past_conversation_id=None):
             if request_for == "file_upload":
                 file_name = request.POST.get('file_name', None)
                 url = request.POST.get('url', None)      
-
+                speakers = request.POST.get('speakers', None)
+                speakers_email = request.POST.get('speakers_email', None)
+                print(speakers)
+                print(speakers_email)
                 # New
                 if past_conversation_id is None:
-                    job_id, conversation_id = process_audio_video_url(request, url, file_name, 'audio url')
+                    job_id, conversation_id = process_audio_video_url(request, url, file_name, 'audio url', speaker_list=speakers, speakers_email=speakers_email)
 
                 # Append
                 else:
-                    job_id, conversation_id = process_audio_video_url(request, url, file_name, 'audio url', 'append', past_conversation_id)
+                    job_id, conversation_id = process_audio_video_url(request, url, file_name, 'audio url', 'append', past_conversation_id, speaker_list=speakers, speakers_email=speakers_email)
                     
                 response = {
                     'job_id': job_id,
@@ -520,14 +604,16 @@ def transcript_video_url(request, past_conversation_id=None):
             if request_for == "file_upload":
                 file_name = request.POST.get('file_name', None)
                 url = request.POST.get('url', None)      
-
+                speakers = request.POST.get('speakers', None)
+                speakers_email = request.POST.get('speakers_email', None)
+            
                  # New
                 if past_conversation_id is None:
-                    job_id, conversation_id = process_audio_video_url(request, url, file_name, 'video url')
+                    job_id, conversation_id = process_audio_video_url(request, url, file_name, 'video url', speaker_list=speakers, speakers_email=speakers_email)
 
                 # Append
                 else:
-                    job_id, conversation_id = process_audio_video_url(request, url, file_name, 'video url', 'append', past_conversation_id)
+                    job_id, conversation_id = process_audio_video_url(request, url, file_name, 'video url', 'append', past_conversation_id, speaker_list=speakers, speakers_email=speakers_email)
 
                 response = {
                     'job_id': job_id,
