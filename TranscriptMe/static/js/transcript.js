@@ -1,3 +1,20 @@
+function onReady(callback) {
+    var intervalId = window.setInterval(function () {
+        if (document.getElementsByTagName('body')[0] !== undefined) {
+            window.clearInterval(intervalId);
+            callback.call(this);
+        }
+    }, 1000);
+}
+
+function setVisible(selector, visible) {
+    document.querySelector(selector).style.display = visible ? 'block' : 'none';
+}
+
+onReady(function () {
+    setVisible('.loader', false);
+});
+
 /** ---------------------Getting CSRF TOKEN START----------------------- */
 
 const csrftoken = getCookie('csrftoken');
@@ -21,20 +38,25 @@ function getCookie(name) {
 /** ---------------------Getting CSRF TOKEN END----------------------- */
 $(document).ready(function () {
     let my_response_data = []
-    
+
     /** ---------------------FILE UPLOAD BUTTON----------------------- */
     $('#file_upload_btn').on('click', function (e) {
-        e.preventDefault(); 
-        let file_props = $('#file').prop('files');   
+        e.preventDefault();
+        let file_props = $('#file').prop('files');
         let file = file_props[0];
-        let file_name = $('#file_name').val();   
+        let file_name = $('#file_name').val();
+        let speakers = $('#speakers').val();
+        let speakers_email = $('#speakers_email').val();
         let data = new FormData();
 
+        data.append("speakers", speakers);
+        data.append("speakers_email", speakers_email);
         data.append("file", file);
         data.append("file_name", file_name);
         data.append("request", "file_upload");
         data.append("csrfmiddlewaretoken", csrftoken);
         $('#file_upload_btn').prop('value', 'Uploading File...');
+        $('#waiting').css('display', 'block');
         // sending form data
         $.ajax({
             type: "POST",
@@ -49,8 +71,9 @@ $(document).ready(function () {
                 // alert(data.message);
                 // console.log('success');
                 // console.log(data);
-                
-                if(data){
+
+                if (data) {
+                    $('#waiting').css('display', 'none');
                     $('#file_upload_btn').prop('value', 'Uploaded');
                     $('#file_upload_btn').removeClass('btn btn-outline-secondary');
                     $('#file_upload_btn').addClass('btn btn-success');
@@ -60,7 +83,7 @@ $(document).ready(function () {
                     my_response_data.push(data.conversation_id);
                 }
             },
-            
+
             failure: function (data) {
                 // alert(data.message);
                 console.log('fail');
@@ -71,9 +94,9 @@ $(document).ready(function () {
 
 
     /** ---------------------Uploading Text File----------------------- */
-    
+
     $('#text_submit_btn').on('click', function (e) {
-        e.preventDefault(); 
+        e.preventDefault();
         const insights = document.querySelectorAll(`input[name="insights"]:checked`);
         let values = [];
 
@@ -83,15 +106,14 @@ $(document).ready(function () {
             values.push(checkbox.value);
             data.append(checkbox.value, checkbox.value)
         });
-       
+
         data.append("job_id", my_response_data[0]);
         data.append("conversation_id", my_response_data[1]);
         data.append("request", "file_download");
         data.append("csrfmiddlewaretoken", csrftoken);
 
-        if(values.length > 0)
-        {
-            $('#download_link').html('<img src="/static/images/misc/loading.gif" class="my-3">');
+        if (values.length > 0) {
+            $('#waiting').css('display', 'block');
             // sending form data
             $.ajax({
                 type: "POST",
@@ -107,30 +129,31 @@ $(document).ready(function () {
                     // console.log('success');
                     // console.log(data);
 
-                    if(data){
+                    if (data) {
                         let url = download_url.replace('0/1', `${data.job_id}/${data.conversation_id}`);
                         let download_link = `<h4 class="my-3">Download your file here!</h4>
                             <a href="${url}" type="button" class="btn btn-primary">Download Transcription</a>`;
+                        $('#waiting').css('display', 'none');
                         $('#download_link').html(download_link);
                     }
                 },
-                
+
                 failure: function (data) {
                     // alert(data.message);
                     console.log('fail');
                 }
             });
         }
-        else{
+        else {
             alert('Please select atleast one insight!');
         }
-        
+
     });
 
 
     /** ---------------------Uploading Audio File----------------------- */
     $('#audio_submit_btn').on('click', function (e) {
-        e.preventDefault();   
+        e.preventDefault();
         const insights = document.querySelectorAll(`input[name="insights"]:checked`);
         let values = [];
 
@@ -145,9 +168,8 @@ $(document).ready(function () {
         data.append("request", "file_download");
         data.append("csrfmiddlewaretoken", csrftoken);
 
-        if(values.length > 0)
-        {
-            $('#download_link').html('<img src="/static/images/misc/loading.gif" class="my-3">');
+        if (values.length > 0) {
+            $('#waiting').css('display', 'block');
             // sending form data
             $.ajax({
                 type: "POST",
@@ -163,21 +185,22 @@ $(document).ready(function () {
                     // console.log('success');
                     // console.log(data);
 
-                    if(data){
+                    if (data) {
                         let url = download_url.replace('0/1', `${data.job_id}/${data.conversation_id}`);
                         let download_link = `<h4 class="my-3">Download your file here!</h4>
                             <a href="${url}" type="button" class="btn btn-primary">Download Transcription</a>`;
+                        $('#waiting').css('display', 'none');
                         $('#download_link').html(download_link);
                     }
                 },
-                
+
                 failure: function (data) {
                     // alert(data.message);
                     console.log('fail');
                 }
             });
         }
-        else{
+        else {
             alert('Please select atleast one insight!');
         }
     });
@@ -185,7 +208,7 @@ $(document).ready(function () {
 
     /** ---------------------Uploading Video File----------------------- */
     $('#video_submit_btn').on('click', function (e) {
-        e.preventDefault();   
+        e.preventDefault();
         const insights = document.querySelectorAll(`input[name="insights"]:checked`);
         let values = [];
 
@@ -200,9 +223,8 @@ $(document).ready(function () {
         data.append("request", "file_download");
         data.append("csrfmiddlewaretoken", csrftoken);
 
-        if(values.length > 0)
-        {
-            $('#download_link').html('<img src="/static/images/misc/loading.gif" class="my-3">');
+        if (values.length > 0) {
+            $('#waiting').css('display', 'block');
             // sending form data
             $.ajax({
                 type: "POST",
@@ -218,21 +240,22 @@ $(document).ready(function () {
                     // console.log('success');
                     // console.log(data);
 
-                    if(data){
+                    if (data) {
                         let url = download_url.replace('0/1', `${data.job_id}/${data.conversation_id}`);
                         let download_link = `<h4 class="my-3">Download your file here!</h4>
                             <a href="${url}" type="button" class="btn btn-primary">Download Transcription</a>`;
+                        $('#waiting').css('display', 'none');
                         $('#download_link').html(download_link);
                     }
                 },
-                
+
                 failure: function (data) {
                     // alert(data.message);
                     console.log('fail');
                 }
             });
         }
-        else{
+        else {
             alert('Please select atleast one insight!');
         }
     });
@@ -241,17 +264,22 @@ $(document).ready(function () {
 
     /** ---------------------URL Upload Button----------------------- */
     $('#url_upload_btn').on('click', function (e) {
-        e.preventDefault(); 
-        let file_name = $('#file_name').val();   
-        let url = $('#url').val();   
+        e.preventDefault();
+        let file_name = $('#file_name').val();
+        let url = $('#url').val();
         let data = new FormData();
+        let speakers = $('#speakers').val();
+        let speakers_email = $('#speakers_email').val();
 
+        data.append("speakers", speakers);
+        data.append("speakers_email", speakers_email);
         data.append("url", url);
         data.append("file_name", file_name);
         data.append("request", "file_upload");
         data.append("csrfmiddlewaretoken", csrftoken);
-        
+
         $('#url_upload_btn').prop('value', 'Processing...');
+        $('#waiting').css('display', 'block');
         // sending form data
         $.ajax({
             type: "POST",
@@ -266,8 +294,9 @@ $(document).ready(function () {
                 // alert(data.message);
                 // console.log('success');
                 // console.log(data);
-                
-                if(data){
+
+                if (data) {
+                    $('#waiting').css('display', 'none');
                     $('#url_upload_btn').prop('value', 'Uploaded');
                     $('#url_upload_btn').removeClass('btn btn-outline-secondary');
                     $('#url_upload_btn').addClass('btn btn-success');
@@ -277,7 +306,7 @@ $(document).ready(function () {
                     my_response_data.push(data.conversation_id);
                 }
             },
-            
+
             failure: function (data) {
                 // alert(data.message);
                 console.log('fail');
@@ -287,11 +316,11 @@ $(document).ready(function () {
 
 
 
-   
+
     /** ---------------------Audio URL----------------------- */
 
     $('#audio_url_submit_btn').on('click', function (e) {
-        e.preventDefault();   
+        e.preventDefault();
         const insights = document.querySelectorAll(`input[name="insights"]:checked`);
         let values = [];
 
@@ -306,9 +335,8 @@ $(document).ready(function () {
         data.append("request", "file_download");
         data.append("csrfmiddlewaretoken", csrftoken);
 
-        if(values.length > 0)
-        {
-            $('#download_link').html('<img src="/static/images/misc/loading.gif" class="my-3">');
+        if (values.length > 0) {
+            $('#waiting').css('display', 'block');
             // sending form data
             $.ajax({
                 type: "POST",
@@ -324,21 +352,22 @@ $(document).ready(function () {
                     // console.log('success');
                     // console.log(data);
 
-                    if(data){
+                    if (data) {
                         let url = download_url.replace('0/1', `${data.job_id}/${data.conversation_id}`);
                         let download_link = `<h4 class="my-3">Download your file here!</h4>
                             <a href="${url}" type="button" class="btn btn-primary">Download Transcription</a>`;
+                        $('#waiting').css('display', 'none');
                         $('#download_link').html(download_link);
                     }
                 },
-                
+
                 failure: function (data) {
                     // alert(data.message);
                     console.log('fail');
                 }
             });
         }
-        else{
+        else {
             alert('Please select atleast one insight!');
         }
     });
@@ -347,7 +376,7 @@ $(document).ready(function () {
     /** ---------------------Video URL----------------------- */
 
     $('#video_url_submit_btn').on('click', function (e) {
-        e.preventDefault();   
+        e.preventDefault();
         const insights = document.querySelectorAll(`input[name="insights"]:checked`);
         let values = [];
 
@@ -362,9 +391,8 @@ $(document).ready(function () {
         data.append("request", "file_download");
         data.append("csrfmiddlewaretoken", csrftoken);
 
-        if(values.length > 0)
-        {
-            $('#download_link').html('<img src="/static/images/misc/loading.gif" class="my-3">');
+        if (values.length > 0) {
+            $('#waiting').css('display', 'block');
             // sending form data
             $.ajax({
                 type: "POST",
@@ -380,21 +408,22 @@ $(document).ready(function () {
                     // console.log('success');
                     // console.log(data);
 
-                    if(data){
+                    if (data) {
                         let url = download_url.replace('0/1', `${data.job_id}/${data.conversation_id}`);
                         let download_link = `<h4 class="my-3">Download your file here!</h4>
                             <a href="${url}" type="button" class="btn btn-primary">Download Transcription</a>`;
+                        $('#waiting').css('display', 'none');
                         $('#download_link').html(download_link);
                     }
                 },
-                
+
                 failure: function (data) {
                     // alert(data.message);
                     console.log('fail');
                 }
             });
         }
-        else{
+        else {
             alert('Please select atleast one insight!');
         }
     });

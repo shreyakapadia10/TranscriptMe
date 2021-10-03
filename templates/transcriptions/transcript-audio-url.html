@@ -3,6 +3,8 @@
 {% block content %}
 
 <div class="container mt-5">
+    <div id="waiting" class="loader">
+    </div>
     <form method="post" enctype="multipart/form-data" id="audio_url_form">
         {% csrf_token %}
         <h4 class="my-3">Step 1: Give Public URL of Audio File</h4>
@@ -11,6 +13,19 @@
             <input type="text" class="form-control" placeholder="Transcription Name" aria-label="Transcription Name"
                 aria-describedby="basic-addon1" id="file_name" name="file_name" required>
         </div>
+
+        <div class="input-group my-3">
+            <span class="input-group-text" id="list-speakers">Name of Speakers:</span>
+            <input type="text" class="form-control" placeholder="e.g. Shreya, Roshani, Faiz" aria-label="List of Speakers"
+                aria-describedby="basic-addon1" id="speakers" name="speakers" required>
+        </div>
+
+        <div class="input-group my-3">
+            <span class="input-group-text" id="list-speakers-email">Email of Speakers:</span>
+            <input type="text" class="form-control" placeholder="e.g. shreya@gmail.com, roshani@gmail.com, faiz@gmail.com" aria-label="List of Speakers"
+                aria-describedby="basic-addon1" id="speakers_email" name="speakers_email" required>
+        </div>
+        
         <div class="input-group my-3">
             <span class="input-group-text" id="basic-addon1">Audio URL</span>
             <input type="text" class="form-control" placeholder="URL" aria-label="Audio URL"
