@@ -1,38 +1,54 @@
 <div class="container-fluid mt-5 border-top">
-    <footer class="py-5">
+    <footer class="py-5 text-center">
       <div class="row">
-        <div class="col-3">
+        <div class="col-2">
           <h5>Text Transcription</h5>
           <ul class="nav flex-column">
-            <li class="nav-item mb-2"><a href="{% url 'TranscriptText' %}" class="nav-link p-0 text-muted">Transcript using File</a></li>
-            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'text' %}" class="nav-link p-0 text-muted">Append Another Text File</a></li>           
+            <li class="nav-item mb-2"><a href="{% url 'TranscriptText' %}" class="nav-link p-0">Transcript using File</a></li>
+            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'text' %}" class="nav-link p-0">Append Another Text File</a></li>           
           </ul>
         </div>
   
-        <div class="col-3">
+        <div class="col-2">
           <h5>Audio Transcription</h5>
           <ul class="nav flex-column">
-            <li class="nav-item mb-2"><a href="{% url 'TranscriptAudio' %}" class="nav-link p-0 text-muted">Transcript using File</a></li>
-            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'audio' %}" class="nav-link p-0 text-muted">Append Another Audio File</a></li>
-            <li class="nav-item mb-2"><a href="{% url 'TranscriptAudioURL' %}" class="nav-link p-0 text-muted">Transcript using URL</a></li>
+            <li class="nav-item mb-2"><a href="{% url 'TranscriptAudio' %}" class="nav-link p-0">Transcript using File</a></li>
+            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'audio' %}" class="nav-link p-0">Append Another Audio File</a></li>
+            <li class="nav-item mb-2"><a href="{% url 'TranscriptAudioURL' %}" class="nav-link p-0">Transcript using URL</a></li>
           </ul>
         </div>
   
-        <div class="col-3">
+        <div class="col-2">
           <h5>Video Transcription</h5>
           <ul class="nav flex-column">
-            <li class="nav-item mb-2"><a href="{% url 'TranscriptVideo' %}" class="nav-link p-0 text-muted">Transcript using File</a></li>
-            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'video' %}" class="nav-link p-0 text-muted">Append Another Video File</a></li>
-            <li class="nav-item mb-2"><a href="{% url 'TranscriptVideoURL' %}" class="nav-link p-0 text-muted">Transcript using URL</a></li>
+            <li class="nav-item mb-2"><a href="{% url 'TranscriptVideo' %}" class="nav-link p-0">Transcript using File</a></li>
+            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'video' %}" class="nav-link p-0">Append Another Video File</a></li>
+            <li class="nav-item mb-2"><a href="{% url 'TranscriptVideoURL' %}" class="nav-link p-0">Transcript using URL</a></li>
           </ul>
         </div>
 
-        <div class="col-3">
+        <div class="col-2">
+          <h5>Meeting Transcription</h5>
+          <ul class="nav flex-column">
+            <li class="nav-item mb-2"><a href="{% url 'TranscriptZoomCall' %}" class="nav-link p-0">Transcript Zoom Call</a></li>
+            <li class="nav-item mb-2"><a href="#" class="nav-link p-0">Transcript Google Meet</a></li>
+          </ul>
+        </div>
+
+        <div class="col-2">
           <h5>Transcription History</h5>
           <ul class="nav flex-column">
-            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'text' %}" class="nav-link p-0 text-muted">Text Transcript History</a></li>
-            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'audio' %}" class="nav-link p-0 text-muted">View Audio Transcript History</a></li>
-            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'video' %}" class="nav-link p-0 text-muted">Video Transcript History</a></li>
+            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'text' %}" class="nav-link p-0">Text Transcript History</a></li>
+            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'audio' %}" class="nav-link p-0">View Audio Transcript History</a></li>
+            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'video' %}" class="nav-link p-0">Video Transcript History</a></li>
+          </ul>
+        </div>
+
+        <div class="col-2">
+          <h5>Meeting Transcription History</h5>
+          <ul class="nav flex-column">
+            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'zoom call' %}" class="nav-link p-0">Zoom Transcript History</a></li>
+            <li class="nav-item mb-2"><a href="#" class="nav-link p-0">Google Meet Transcript History</a></li>
           </ul>
         </div>
       </div>
