@@ -130,7 +130,7 @@ $(document).ready(function () {
                     // console.log(data);
 
                     if (data) {
-                        let url = download_url.replace('0/1', `${data.job_id}/${data.conversation_id}`);
+                        let url = download_url.replace('0/1', `${data.conversation_id}/${data.job_id}`);
                         let download_link = `<h4 class="my-3">Download your file here!</h4>
                             <a href="${url}" type="button" class="btn btn-primary">Download Transcription</a>`;
                         $('#waiting').css('display', 'none');
@@ -186,7 +186,7 @@ $(document).ready(function () {
                     // console.log(data);
 
                     if (data) {
-                        let url = download_url.replace('0/1', `${data.job_id}/${data.conversation_id}`);
+                        let url = download_url.replace('0/1', `${data.conversation_id}/${data.job_id}`);
                         let download_link = `<h4 class="my-3">Download your file here!</h4>
                             <a href="${url}" type="button" class="btn btn-primary">Download Transcription</a>`;
                         $('#waiting').css('display', 'none');
@@ -241,7 +241,7 @@ $(document).ready(function () {
                     // console.log(data);
 
                     if (data) {
-                        let url = download_url.replace('0/1', `${data.job_id}/${data.conversation_id}`);
+                        let url = download_url.replace('0/1', `${data.conversation_id}/${data.job_id}`);
                         let download_link = `<h4 class="my-3">Download your file here!</h4>
                             <a href="${url}" type="button" class="btn btn-primary">Download Transcription</a>`;
                         $('#waiting').css('display', 'none');
@@ -353,7 +353,7 @@ $(document).ready(function () {
                     // console.log(data);
 
                     if (data) {
-                        let url = download_url.replace('0/1', `${data.job_id}/${data.conversation_id}`);
+                        let url = download_url.replace('0/1', `${data.conversation_id}/${data.job_id}`);
                         let download_link = `<h4 class="my-3">Download your file here!</h4>
                             <a href="${url}" type="button" class="btn btn-primary">Download Transcription</a>`;
                         $('#waiting').css('display', 'none');
@@ -409,7 +409,7 @@ $(document).ready(function () {
                     // console.log(data);
 
                     if (data) {
-                        let url = download_url.replace('0/1', `${data.job_id}/${data.conversation_id}`);
+                        let url = download_url.replace('0/1', `${data.conversation_id}/${data.job_id}`);
                         let download_link = `<h4 class="my-3">Download your file here!</h4>
                             <a href="${url}" type="button" class="btn btn-primary">Download Transcription</a>`;
                         $('#waiting').css('display', 'none');
@@ -428,4 +428,107 @@ $(document).ready(function () {
         }
     });
 
+
+
+    /** ---------------------- Zoom Meeting Call ------------------------- */
+
+    $('#zoom_submit_btn').on('click', function (e) {
+        e.preventDefault();
+        let file_name = $('#file_name').val();
+        let email = $('#email').val();
+        let meetingId = $('#meetingId').val();
+        let password = $('#password').val();
+        let phoneNumber = $('#phoneNumber').val();
+
+        if (phoneNumber == ''){
+            phoneNumber = '+13017158592'
+        }
+        var data = new FormData();
+
+        data.append("file_name", file_name);
+        data.append("email", email);
+        data.append("meetingId", meetingId);
+        data.append("password", password);
+        data.append("phoneNumber", phoneNumber);
+        data.append("csrfmiddlewaretoken", csrftoken);
+        
+        $('#waiting').css('display', 'block');
+        // sending form data
+        $.ajax({
+            type: "POST",
+            url: window.location.pathname,
+            processData: false,
+            contentType: false,
+            mimeType: "multipart/form-data",
+            dataType: "json",
+            data: data,
+
+            success: function (data) {
+                if (data) {
+                    console.log(data);
+                    $('#waiting').css('display', 'none');
+                    $('#info-box').css('display', 'block');
+                    $('#zoom_form').css('display', 'none');
+                }
+            },
+
+            failure: function (data) {
+                // alert(data.message);
+                console.log('fail');
+            }
+        });
+
+    });
+
+
+    /** ------------------------- Zoom call download button ------------------------------- */
+    $('#tbody').on('click', '.select-insights', function (e) {
+        e.preventDefault();
+        let conversation_id = $(this).attr('data-conversation-id');
+        // let myThis= this;
+
+        const insights = document.querySelectorAll(`input[name="insights${conversation_id}"]:checked`);
+        let values = [];
+        // let conversation_id = $('#conversation_id').val();
+        var data = new FormData();
+
+        insights.forEach((checkbox) => {
+            values.push(checkbox.value);
+            data.append(checkbox.value, checkbox.value)
+        });
+
+        data.append("request_for", "insights");
+        data.append("conversation_id", conversation_id);
+        data.append("csrfmiddlewaretoken", csrftoken);
+        let url = download_url.replace('0/1', `${conversation_id}`);
+        
+        $('#waiting').css('display', 'block');
+        $('#zoomModal'+conversation_id).modal('hide')
+
+        // sending form data
+        $.ajax({
+            type: "POST",
+            url: url,
+            processData: false,
+            contentType: false,
+            mimeType: "multipart/form-data",
+            dataType: "json",
+            data: data,
+
+            success: function (data) {
+                if (data) {
+                    console.log(data);
+                    let download_link = `<a href="${url}" type="button" class="btn btn-success">Download Transcription</a>`;
+                    $('#waiting').css('display', 'none');
+                    $('#download_link'+conversation_id).html(download_link);
+                }
+            },
+
+            failure: function (data) {
+                // alert(data.message);
+                console.log('fail');
+            }
+        });
+
+    });
 });

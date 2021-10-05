@@ -41,6 +41,16 @@
               <li><a class="dropdown-item" href="{% url 'TranscriptVideoURL' %}">Transcript using URL</a></li>
             </ul>
           </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Transcript Meetings
+            </a>
+            <ul class="dropdown-menu dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink3">
+              <li><a class="dropdown-item" href="{% url 'TranscriptZoomCall' %}">Transcript Zoom Meeting</a></li>
+            </ul>
+          </li>
+
           {% if user.is_authenticated %}  
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink4" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -52,6 +62,7 @@
               <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'audio' %}">Audio File</a></li>
               <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'audio url' %}">Audio URL</a></li>
               <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'video url' %}">Video URL</a></li>
+              <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'zoom call' %}">Zoom Call</a></li>
             </ul>
           </li>
           {% endif %}

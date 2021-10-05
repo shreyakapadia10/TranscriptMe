@@ -5,7 +5,7 @@ from .forms import DocumentForm
 
 # Register your models here.
 class DocumentAdmin(admin.ModelAdmin):
-    form = DocumentForm
+    # form = DocumentForm
     search_fields = ('media_type', 'uploaded_at', ) 
     list_display = ('name', 'user', 'media_type', 'uploaded_at',)
     list_display_links = ('name',)

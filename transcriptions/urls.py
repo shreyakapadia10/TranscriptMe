@@ -18,8 +18,11 @@ urlpatterns = [
     path('video/url/append/<past_conversation_id>/', views.transcript_video_url, name='TranscriptVideoURLAppend'),
 
 
-    path('download_files/<job_id>/<conversation_id>/', views.download_files, name='DownloadFiles'),
+    path('download_files/<conversation_id>/<job_id>/', views.download_files, name='DownloadFiles'),
+    path('download_files/<conversation_id>/', views.download_files, name='DownloadFiles'),
     
     path('history/', views.view_history, name='ViewHistory'),
     path('history/<media_type>/', views.view_history, name='ViewHistoryByMedia'),
+
+    path('zoom-call/', views.transcript_zoom_call, name='TranscriptZoomCall')
 ]

@@ -7,6 +7,8 @@ MEDIA_TYPES = (
     ('video', 'video'),
     ('audio url', 'audio url'),
     ('video url', 'video url'),
+    ('zoom call', 'zoom call'),
+    ('google meet', 'google meet'),
 )
 
 # Create your models here.
@@ -15,7 +17,7 @@ class Document(models.Model):
     name = models.CharField(max_length=255, blank=True)
     file = models.FileField(upload_to='files/', blank=True)
     zip_file = models.FileField(upload_to='zip_files/', blank=True)
-    media_type = models.CharField(max_length=10, choices=MEDIA_TYPES)
+    media_type = models.CharField(max_length=15, choices=MEDIA_TYPES)
     job_id = models.TextField(blank=True)
     conversation_id = models.TextField(blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)

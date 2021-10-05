@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-5">
+    <div id="waiting" class="loader">
+    </div>
+
+    <div class="container mx-auto alert alert-info text-center" role="alert" style="max-width: 1024px; margin-top:50px; display: none;" id="info-box">
+        <h5>A Symbl bot will join shortly in your Zoom Meeting, please allow it to get meeting insights. Meeting insights will be sent to provided email id when the meeting ends. </h5>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" id="zoom_form">
+        {% csrf_token %}
+        <h4 class="my-3">Step 1: Enter Zoom Meeting Details</h4>
+        <div class="input-group">
+            <span class="input-group-text" id="basic-addon1">Transcription Name</span>
+            <input type="text" class="form-control" placeholder="Transcription Name" aria-label="Transcription Name"
+                aria-describedby="basic-addon1" id="file_name" name="file_name" required>
+        </div>
+
+        <div class="input-group my-3">
+            <span class="input-group-text" id="list-speakers-email">Email ID:</span>
+            <input type="text" class="form-control"
+                placeholder="Your email ID you wish to receive the analytics on" aria-label="Email ID"
+                aria-describedby="basic-addon1" id="email" name="email" required>
+        </div>
+
+        <div class="input-group my-3">
+            <span class="input-group-text" id="list-speakers">Meeting ID:</span>
+            <input type="number" class="form-control" placeholder="Your zoom meetingId e.g. 12345"
+                aria-label="meetingId" aria-describedby="basic-addon1" id="meetingId" name="meetingId" required>
+        </div>
+
+        <div class="input-group my-3">
+            <span class="input-group-text" id="list-speakers">Meeting Password(Numeric only):</span>
+            <input type="password" class="form-control" placeholder="Your zoom meeting passcode e.g. 65478"
+                aria-label="password" aria-describedby="basic-addon1" id="password" name="password" required>
+        </div>
+
+        <div class="input-group my-3">
+            <span class="input-group-text" id="list-speakers">Phone Number(Optional):</span>
+            <input type="tel" class="form-control" placeholder="A valid US phone number or a Zoom number e.g. +11234567890"
+                aria-label="phoneNumber" aria-describedby="basic-addon1" id="phoneNumber" name="phoneNumber">
+        </div>
+
+        
+
+        <div class="form-group mt-3" id="transcription_btn_div">
+            <h4 class="my-3">Step 3: Submit and it's done!</h4>
+            <button type="submit" id="zoom_submit_btn" class="btn btn-primary">Request Transcription</button>
+        </div>
+
+</div>
+
+</form>
+</div>
+
+{% endblock content %}
+
+{% block js %}
+
+<script>
+    let URL = "{% url 'TranscriptZoomCall' %}"
+</script>
+
+{% endblock js %}

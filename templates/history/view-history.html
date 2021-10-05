@@ -5,7 +5,7 @@
 <div class="container">
   {% if histories %}
   <h2 class="text-center my-4">My Transcript History</h2>
-  
+
   <header class="pb-3">
     <div class="form-inline">
       <span class="mr-md-auto"><strong>{{ history_count }}</strong> Transcriptions Found! </span>
@@ -28,44 +28,135 @@
         <th scope="col" class="text-center">Download Link</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="tbody">
       {% for history in histories %}
-      <tr>
-        <th scope="row" class="text-center">{{ forloop.counter }}</th>
-        <td class="text-center">{{ history.name|capfirst }}</td>
-        <td class="text-center">{{ history.media_type|capfirst }}</td>
-        <td class="text-center">{{ history.uploaded_at }}</td>
-        <td class="text-center">
-          {% if history.job_id != "" %}
-          {% if history.media_type == "text" %}
-          <a href="{% url 'TranscriptTextAppend' history.conversation_id %}" type="button"
-            class="btn btn-primary">Append Another Text File</a>
-        </td>
-        {% elif history.media_type == "audio" %}
-        <a href="{% url 'TranscriptAudioAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append
-          Another Audio File</a></td>
-        {% elif history.media_type == "video" %}
-        <a href="{% url 'TranscriptVideoAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append
-          Another Video File</a></td>
-        {% elif history.media_type == "audio url" %}
-        <a href="{% url 'TranscriptAudioURLAppend' history.conversation_id %}" type="button"
-          class="btn btn-primary">Append Another Audio URL</a></td>
-        {% elif history.media_type == "video url" %}
-        <a href="{% url 'TranscriptVideoURLAppend' history.conversation_id %}" type="button"
-          class="btn btn-primary">Append Another Video URL</a></td>
-        {% endif %}
-        {% else %}
-        <h4>Can't append.</h4>
-        {% endif %}
-        <td class="text-center">
-          {% if history.job_id != "" %}
-          <a href="{% url 'DownloadFiles' history.job_id history.conversation_id %}" type="button"
-            class="btn btn-success">Download Transcription</a>
-          {% else %}
-          <h4>No Download link available.</h4>
-          {% endif %}
-        </td>
-      </tr>
+        <tr>
+          <th scope="row" class="text-center">{{ forloop.counter }}</th>
+          <td class="text-center">{{ history.name|capfirst }}</td>
+          <td class="text-center">{{ history.media_type|capfirst }}</td>
+          <td class="text-center">{{ history.uploaded_at }}</td>
+          <td class="text-center">
+            {% if history.conversation_id != "" %}
+              {% if history.media_type == "text" %}
+                <a href="{% url 'TranscriptTextAppend' history.conversation_id %}" type="button"
+                class="btn btn-primary">Append Another Text File</a>
+              </td>
+
+              {% elif history.media_type == "audio" %}
+                <a href="{% url 'TranscriptAudioAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append
+                Another Audio File</a></td>
+
+              {% elif history.media_type == "video" %}
+                <a href="{% url 'TranscriptVideoAppend' history.conversation_id %}" type="button" class="btn btn-primary">Append
+                Another Video File</a></td>
+
+              {% elif history.media_type == "audio url" %}
+                <a href="{% url 'TranscriptAudioURLAppend' history.conversation_id %}" type="button"
+                class="btn btn-primary">Append Another Audio URL</a></td>
+
+              {% elif history.media_type == "video url" %}
+                <a href="{% url 'TranscriptVideoURLAppend' history.conversation_id %}" type="button"
+                class="btn btn-primary">Append Another Video URL</a></td>
+              
+              
+              <!-- FOR ZOOM CALL  -->
+              {% elif history.media_type == "zoom call" %}
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#zoomModal{{history.conversation_id}}">
+                Select Insights
+                </button>
+  
+                <!-- Modal -->
+                <div class="modal fade" id="zoomModal{{history.conversation_id}}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                  aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Select Insights</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <form method="POST" id="zoom_call_download_form">
+                          {% csrf_token %}
+                          <div id="insights_div" style="text-align: left;">
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="messages" name="insights{{history.conversation_id}}" id="insights{{history.conversation_id}}">
+                              <label class="form-check-label" for="messages">
+                                Speech-to-Text (messages)
+                              </label>
+                            </div>
+    
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="action_items" id="insights{{history.conversation_id}}"
+                                name="insights{{history.conversation_id}}">
+                              <label class="form-check-label" for="action_items">
+                                Action Items
+                              </label>
+                            </div>
+    
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="questions" id="insights{{history.conversation_id}}" name="insights{{history.conversation_id}}">
+                              <label class="form-check-label" for="questions">
+                                Questions
+                              </label>
+                            </div>
+    
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="topics" id="insights{{history.conversation_id}}" name="insights{{history.conversation_id}}">
+                              <label class="form-check-label" for="topics">
+                                Topics
+                              </label>
+                            </div>
+    
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="follow_ups" id="insights{{history.conversation_id}}"
+                                name="insights{{history.conversation_id}}">
+                              <label class="form-check-label" for="follow_ups">
+                                Follow-ups
+                              </label>
+                            </div>
+    
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="members" id="insights{{history.conversation_id}}" name="insights{{history.conversation_id}}">
+                              <label class="form-check-label" for="members">
+                                Members (a list of participants in a conversation)
+                              </label>
+                            </div>
+                          </div>
+                      </div>
+                    
+                      </form>
+                    
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <input type="submit" id="select_insights_btn{{history.conversation_id}}" name="select_insights_btn{{history.conversation_id}}" class="btn btn-primary select-insights" data-conversation-id="{{history.conversation_id}}"  value="Get Transcription">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+              {% elif history.media_type != "zoom call" %}
+              <h4>Can't append.</h4>
+              {% else %}
+              <h4>-</h4>
+              {% endif %}
+          <td class="text-center">
+            {% if history.media_type == "zoom call" %}
+              {% if history.zip_file %}
+              <a href="{% url 'DownloadFiles' history.conversation_id %}" type="button"
+              class="btn btn-success">Download Transcription</a>
+              {% else %}
+              <div id="download_link{{history.conversation_id}}">
+                <!-- Download link will be available here -->
+              </div>
+              {% endif %}
+            {% elif history.conversation_id != "" %}
+            <a href="{% url 'DownloadFiles' history.conversation_id history.job_id %}" type="button"
+              class="btn btn-success">Download Transcription</a>
+            {% else %}
+            <h4>No Download link available.</h4>
+            {% endif %}
+          </td>
+        </tr>
       {% endfor %}
     </tbody>
   </table>
@@ -108,3 +199,12 @@
 </div>
 
 {% endblock content %}
+
+
+{% block js %}
+
+<script>
+    let download_url = "{% url 'DownloadFiles' 0 1%}"
+</script>
+
+{% endblock js %}
