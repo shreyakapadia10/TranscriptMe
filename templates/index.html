@@ -7,21 +7,21 @@
         <div class="card">
             <a href="{% url 'TranscriptText' %}"><img src="{% static 'images/icons/file.png' %}" class="card-img-top mage-border image-size image-center" alt="{% static 'images/icons/file.png' %}"></a>
           <div class="card-body">
-            <h5 class="card-title">Transcript Text</h5>
+            <h5 class="card-title"><a href="{% url 'TranscriptText' %}">Transcript Text</a></h5>
             <p class="card-text">Easily get insights of your text file in 3 steps!</p>
           </div>
         </div>
         <div class="card">
             <a href="{% url 'TranscriptAudio' %}"><img src="{% static 'images/icons/audio.png' %}" class="card-img-top mage-border image-size image-center mt-2" alt="{% static 'images/icons/mic.png' %}"></a>
           <div class="card-body">
-            <h5 class="card-title">Transcript Audio</h5>
+            <h5 class="card-title"><a href="{% url 'TranscriptAudio' %}">Transcript Audio</a></h5>
             <p class="card-text">Easily get all the insights of audio in 3 steps!</p>
           </div>
         </div>
         <div class="card">
             <a href="{% url 'TranscriptVideo' %}"><img src="{% static 'images/icons/video.png' %}" class="card-img-top mage-border image-size image-center" alt="{% static 'images/icons/file.png' %}"></a>
           <div class="card-body">
-            <h5 class="card-title">Transcript Video</h5>
+            <h5 class="card-title"><a href="{% url 'TranscriptVideo' %}">Transcript Video</a></h5>
             <p class="card-text">Easily get all the insights of any video in 3 steps!</p>
           </div>
         </div>
@@ -30,22 +30,22 @@
         <div class="card">
             <a href="{% url 'TranscriptAudioURL' %}"><img src="{% static 'images/icons/audio-url.png' %}" class="card-img-top mage-border image-size image-center mt-2" alt="{% static 'images/icons/audio-url.png' %}"></a>
           <div class="card-body">
-            <h5 class="card-title">Transcript Audio by URL</h5>
+            <h5 class="card-title"><a href="{% url 'TranscriptAudioURL' %}">Transcript Audio by URL</a></h5>
             <p class="card-text">Easily get all the insights of audio in 3 steps!</p>
           </div>
         </div>
         <div class="card">
             <a href="{% url 'TranscriptVideoURL' %}"><img src="{% static 'images/icons/video-url.png' %}" class="card-img-top mage-border image-size image-center" alt="{% static 'images/icons/video-url.png' %}"></a>
           <div class="card-body">
-            <h5 class="card-title">Transcript Video by URL</h5>
+            <h5 class="card-title"><a href="{% url 'TranscriptVideoURL' %}">Transcript Video by URL</a></h5>
             <p class="card-text">Easily get all the insights of any video in 3 steps!</p>
           </div>
         </div>
         <div class="card">
-          <a href="#"><img src="{% static 'images/icons/video.png' %}" class="card-img-top mage-border image-size image-center" alt="{% static 'images/icons/file.png' %}"></a>
+          <a href="{% url 'TranscriptZoomCall' %}"><img src="{% static 'images/icons/zoom-meeting.png' %}" class="card-img-top mage-border image-size image-center" alt="{% static 'images/icons/zoom-meeting.png' %}"></a>
         <div class="card-body">
-          <h5 class="card-title">Transcript Video</h5>
-          <p class="card-text">Easily get all the insights of any video in 3 steps!</p>
+          <h5 class="card-title"><a href="{% url 'TranscriptZoomCall' %}">Transcript Zoom Call</a></h5>
+          <p class="card-text">Easily get all the insights of any Zoom Call in 2 steps!</p>
         </div>
       </div>
     </div>    
