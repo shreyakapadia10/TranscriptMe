@@ -59,7 +59,7 @@
                 class="btn btn-primary">Append Another Video URL</a></td>
               
               
-              <!-- FOR ZOOM CALL  -->
+              <!-- FOR ZOOM CALL START -->
               {% elif history.media_type == "zoom call" %}
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#zoomModal{{history.conversation_id}}">
                 Select Insights
@@ -134,12 +134,96 @@
                   </div>
                 </div>
               {% endif %}
+
+              <!-- FOR ZOOM CALL ENDS  -->
+
+              <!-- FOR GOOGLE MEET STARTS -->
+              {% elif history.media_type == "google meet" %}
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#googleMeetModal{{history.conversation_id}}">
+                Select Insights
+                </button>
+  
+                <!-- Modal -->
+                <div class="modal fade" id="googleMeetModal{{history.conversation_id}}" tabindex="-1" aria-labelledby="googleMeetModalLabel"
+                  aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="googleMeetModalLabel">Select Insights</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <form method="POST" id="google_meet_download_form">
+                          {% csrf_token %}
+                          <div id="insights_div" style="text-align: left;">
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="messages" name="insights{{history.conversation_id}}" id="insights{{history.conversation_id}}">
+                              <label class="form-check-label" for="messages">
+                                Speech-to-Text (messages)
+                              </label>
+                            </div>
+    
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="action_items" id="insights{{history.conversation_id}}"
+                                name="insights{{history.conversation_id}}">
+                              <label class="form-check-label" for="action_items">
+                                Action Items
+                              </label>
+                            </div>
+    
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="questions" id="insights{{history.conversation_id}}" name="insights{{history.conversation_id}}">
+                              <label class="form-check-label" for="questions">
+                                Questions
+                              </label>
+                            </div>
+    
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="topics" id="insights{{history.conversation_id}}" name="insights{{history.conversation_id}}">
+                              <label class="form-check-label" for="topics">
+                                Topics
+                              </label>
+                            </div>
+    
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="follow_ups" id="insights{{history.conversation_id}}"
+                                name="insights{{history.conversation_id}}">
+                              <label class="form-check-label" for="follow_ups">
+                                Follow-ups
+                              </label>
+                            </div>
+    
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="members" id="insights{{history.conversation_id}}" name="insights{{history.conversation_id}}">
+                              <label class="form-check-label" for="members">
+                                Members (a list of participants in a conversation)
+                              </label>
+                            </div>
+                          </div>
+                      </div>
+                    
+                      </form>
+                    
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <input type="submit" id="select_insights_btn{{history.conversation_id}}" name="select_insights_btn{{history.conversation_id}}" class="btn btn-primary select-insights" data-conversation-id="{{history.conversation_id}}"  value="Get Transcription">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+              <!-- FOR GOOGLE MEET ENDS -->
               {% elif history.media_type != "zoom call" %}
-              <h4>Can't append.</h4>
+                <h4>Can't append.</h4>
+
+              {% elif history.media_type != "google meet" %}
+                <h4>Can't append.</h4>
+              
               {% else %}
-              <h4>-</h4>
+                <h4>-</h4>
               {% endif %}
           <td class="text-center">
+            <!-- For ZOOM Call -->
             {% if history.media_type == "zoom call" %}
               {% if history.zip_file %}
               <a href="{% url 'DownloadFiles' history.conversation_id %}" type="button"
@@ -148,12 +232,25 @@
               <div id="download_link{{history.conversation_id}}">
                 <!-- Download link will be available here -->
               </div>
-              {% endif %}
+            {% endif %}
+
+            <!-- For Google Meet -->
+            {% elif history.media_type == "google meet" %}
+              {% if history.zip_file %}
+              <a href="{% url 'DownloadFiles' history.conversation_id %}" type="button"
+              class="btn btn-success">Download Transcription</a>
+              {% else %}
+              <div id="download_link{{history.conversation_id}}">
+                <!-- Download link will be available here -->
+              </div>
+            {% endif %}
+            
+            <!-- Rest of the Media type -->
             {% elif history.conversation_id != "" %}
             <a href="{% url 'DownloadFiles' history.conversation_id history.job_id %}" type="button"
               class="btn btn-success">Download Transcription</a>
             {% else %}
-            <h4>No Download link available.</h4>
+              <h4>No Download link available.</h4>
             {% endif %}
           </td>
         </tr>

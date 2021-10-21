@@ -1,4 +1,3 @@
-from django.core import paginator
 from django.http.response import JsonResponse
 from symbl.Conversations import Conversation
 from transcriptions.models import Document
@@ -671,6 +670,7 @@ def transcript_video_url(request, past_conversation_id=None):
 		return render(request, 'transcriptions/transcript-video-url.html')
 	return redirect('Login')
 
+# For Zoom Call
 def transcript_zoom_call(request):
 	if request.user.is_authenticated:
 		if request.is_ajax():
@@ -721,4 +721,56 @@ def transcript_zoom_call(request):
 			}
 			return JsonResponse(response)
 		return render(request, 'transcriptions/transcript-zoom-call.html')
+	return redirect('Login')
+
+# For Google Meet
+def transcript_google_meet(request):
+	if request.user.is_authenticated:
+		if request.is_ajax():
+			app_id = request.user.app_id
+			secret_id = request.user.secret_id
+			
+			# Meeting details
+			file_name = request.POST.get('file_name', None)
+			email = request.POST.get('email', None)
+			phoneNumber = request.POST.get('phoneNumber', None)
+			pin = request.POST.get('pin', None)
+
+			connection_object = symbl.Telephony.start_pstn(
+				credentials={"app_id": app_id, "app_secret": secret_id}, 
+				phone_number=phoneNumber,
+				dtmf = ",,{}#,,{}#".format(pin), #do not change these variables
+				actions = [
+					{
+					"invokeOn": "stop",
+					"name": "sendSummaryEmail",
+					"parameters": {
+						"emails": [
+						email
+						],
+					},
+					},
+				]
+			)
+
+			# events = {
+			# 	'transcript_response': lambda transcript: print('printing the transcript response ', str(transcript))
+			# 	,'message_response': lambda message: print('printing the message response ', str(message))
+			# 	,'insight_response': lambda insight: print('printing the insight response ', str(insight))
+			# 	,'topic_response': lambda topic: print('printing the topic response ', str(topic))
+			# }
+
+			# connection_object.subscribe(events)
+			
+			conversation_id = connection_object.conversation.get_conversation_id()
+			
+			doc = Document.objects.create(user=request.user, name=file_name, media_type='google meet', conversation_id=conversation_id)
+
+			doc.save()
+			# save_response(request, conversation_id, None, messages, topics, follow_ups, action_items, questions, members, doc, 'google_meet')
+			response = {
+				'msg': 'Success',
+			}
+			return JsonResponse(response)
+		return render(request, 'transcriptions/transcript-google-meet.html')
 	return redirect('Login')

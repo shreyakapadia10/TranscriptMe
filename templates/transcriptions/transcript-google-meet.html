@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-5">
+    <div id="waiting" class="loader">
+    </div>
+
+    <div class="container mx-auto alert alert-info text-center" role="alert" style="max-width: 1024px; margin-top:50px; display: none;" id="info-box">
+        <h5>A Symbl bot will join shortly in your Google Meet's Meeting, please allow it to get meeting insights. Meeting insights will be sent to provided email id when the meeting ends. </h5>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" id="google_meet_form">
+        {% csrf_token %}
+        <h4 class="my-3">Step 1: Enter Google Meet Details</h4>
+        <div class="input-group">
+            <span class="input-group-text" id="basic-addon1">Transcription Name</span>
+            <input type="text" class="form-control" placeholder="Transcription Name" aria-label="Transcription Name"
+                aria-describedby="basic-addon1" id="file_name" name="file_name" required>
+        </div>
+
+        <div class="input-group my-3">
+            <span class="input-group-text" id="list-speakers-email">Email ID:</span>
+            <input type="text" class="form-control"
+                placeholder="Your email ID you wish to receive the analytics on" aria-label="Email ID"
+                aria-describedby="basic-addon1" id="email" name="email" required>
+        </div>
+
+        <div class="input-group my-3">
+            <span class="input-group-text" id="list-speakers">PIN:</span>
+            <input type="pin" class="form-control" placeholder="Your Google meeting pin"
+                aria-label="pin" aria-describedby="basic-addon1" id="pin" name="pin" required>
+        </div>
+
+        <div class="input-group my-3">
+            <span class="input-group-text" id="list-speakers">Dial in/Phone Number(Optional):</span>
+            <input type="tel" class="form-control" placeholder="Google meet phone number to be called, which is mentioned into the Google meeting invitation"
+                aria-label="phoneNumber" aria-describedby="basic-addon1" id="phoneNumber" name="phoneNumber">
+        </div>
+
+        <div class="form-group mt-3" id="transcription_btn_div">
+            <h4 class="my-3">Step 2: Submit and it's done!</h4>
+            <button type="submit" id="google_meet_submit_btn" class="btn btn-primary">Request Transcription</button>
+        </div>
+
+</div>
+
+</form>
+</div>
+
+{% endblock content %}
+
+{% block js %}
+
+<script>
+    let URL = "{% url 'TranscriptGoogleMeet' %}"
+</script>
+
+{% endblock js %}

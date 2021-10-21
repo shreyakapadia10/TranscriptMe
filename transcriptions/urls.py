@@ -24,5 +24,6 @@ urlpatterns = [
     path('history/', views.view_history, name='ViewHistory'),
     path('history/<media_type>/', views.view_history, name='ViewHistoryByMedia'),
 
-    path('zoom-call/', views.transcript_zoom_call, name='TranscriptZoomCall')
+    path('zoom-call/', views.transcript_zoom_call, name='TranscriptZoomCall'),
+    path('google-meet/', views.transcript_google_meet, name='TranscriptGoogleMeet'),
 ]

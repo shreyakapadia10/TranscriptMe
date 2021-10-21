@@ -48,6 +48,7 @@
             </a>
             <ul class="dropdown-menu dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink3">
               <li><a class="dropdown-item" href="{% url 'TranscriptZoomCall' %}">Transcript Zoom Meeting</a></li>
+              <li><a class="dropdown-item" href="{% url 'TranscriptGoogleMeet' %}">Transcript Google Meet</a></li>
             </ul>
           </li>
 
@@ -63,6 +64,7 @@
               <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'audio url' %}">Audio URL</a></li>
               <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'video url' %}">Video URL</a></li>
               <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'zoom call' %}">Zoom Call</a></li>
+              <li><a class="dropdown-item" href="{% url 'ViewHistoryByMedia' 'google meet' %}">Google Meet</a></li>
             </ul>
           </li>
           {% endif %}
