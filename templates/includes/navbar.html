@@ -3,9 +3,9 @@
   <header class="p-3 mb-1 border-bottom">
     <div class="container">
       <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-center">
-        <!-- <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
-          <img src="{% static 'images/icons/logo.jpg' %}" alt="TranscriptMe" width="40" height="42" >
-        </a> -->
+        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
+          <img src="{% static 'images/icons/logo.jpg' %}" alt="TranscriptMe" width="75" height="75" >
+        </a>
 
         <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <li><a href="{% url 'Home' %}" class="nav-link px-2 link-primary">Home</a></li>
@@ -70,9 +70,9 @@
           {% endif %}
         </ul>
 
-        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+        <!-- <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
           <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
-        </form>
+        </form> -->
         {% if user.is_authenticated %}
           <div class="dropdown text-end">
             <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
