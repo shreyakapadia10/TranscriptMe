@@ -31,7 +31,7 @@
           <h5>Meeting Transcription</h5>
           <ul class="nav flex-column">
             <li class="nav-item mb-2"><a href="{% url 'TranscriptZoomCall' %}" class="nav-link p-0">Transcript Zoom Call</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0">Transcript Google Meet</a></li>
+            <li class="nav-item mb-2"><a href="{% url 'TranscriptGoogleMeet' %}" class="nav-link p-0">Transcript Google Meet</a></li>
           </ul>
         </div>
 
@@ -48,7 +48,7 @@
           <h5>Meeting Transcription History</h5>
           <ul class="nav flex-column">
             <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'zoom call' %}" class="nav-link p-0">Zoom Transcript History</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0">Google Meet Transcript History</a></li>
+            <li class="nav-item mb-2"><a href="{% url 'ViewHistoryByMedia' 'google meet' %}" class="nav-link p-0">Google Meet Transcript History</a></li>
           </ul>
         </div>
       </div>

@@ -133,7 +133,6 @@
                     </div>
                   </div>
                 </div>
-              {% endif %}
 
               <!-- FOR ZOOM CALL ENDS  -->
 
@@ -212,6 +211,7 @@
                   </div>
                 </div>
               {% endif %}
+              
               <!-- FOR GOOGLE MEET ENDS -->
               {% elif history.media_type != "zoom call" %}
                 <h4>Can't append.</h4>
@@ -250,7 +250,7 @@
             <a href="{% url 'DownloadFiles' history.conversation_id history.job_id %}" type="button"
               class="btn btn-success">Download Transcription</a>
             {% else %}
-              <h4>No Download link available.</h4>
+            <h4>No Download link available.</h4>
             {% endif %}
           </td>
         </tr>

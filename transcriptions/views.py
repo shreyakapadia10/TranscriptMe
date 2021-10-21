@@ -739,7 +739,7 @@ def transcript_google_meet(request):
 			connection_object = symbl.Telephony.start_pstn(
 				credentials={"app_id": app_id, "app_secret": secret_id}, 
 				phone_number=phoneNumber,
-				dtmf = ",,{}#,,{}#".format(pin), #do not change these variables
+				dtmf = ",,{}#".format(pin), #do not change these variables
 				actions = [
 					{
 					"invokeOn": "stop",
